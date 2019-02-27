@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package choco_solver;
+
+import javax.annotation.ParametersAreNonnullByDefault;
