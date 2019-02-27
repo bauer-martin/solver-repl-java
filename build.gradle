@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'de.martinbauer'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.code.findbugs:annotations:3.0.0'
+    compile group: 'org.dom4j', name: 'dom4j', version: '2.1.0'
+}
