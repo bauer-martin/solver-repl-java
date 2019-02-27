@@ -1,0 +1,23 @@
+package utilities;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+
+import spl_conqueror.BinaryOption;
+import spl_conqueror.VariabilityModel;
+
+public final class ParsingUtils {
+
+  private ParsingUtils() {
+  }
+
+  @Nonnull
+  public static List<BinaryOption> binaryOptionsFromString(String str, VariabilityModel vm) {
+    return Arrays.stream(str.split(","))
+                 .map(vm::getBinaryOption)
+                 .collect(Collectors.toList());
+  }
+}

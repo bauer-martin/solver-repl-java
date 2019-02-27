@@ -14,15 +14,14 @@ import javax.annotation.Nonnull;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.ConfigurationOption;
 import spl_conqueror.SatisfiabilityChecker;
-import spl_conqueror.VariabilityModel;
 
-public final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
+final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
 
   @Nonnull
   private final ConstraintSystemContext context;
 
-  public ChocoSatisfiabilityChecker(VariabilityModel vm) {
-    context = ConstraintSystemContext.from(vm);
+  ChocoSatisfiabilityChecker(ConstraintSystemContext context) {
+    this.context = context;
   }
 
   @Override
@@ -37,15 +36,11 @@ public final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
       Variable variable = entry.getValue();
 
       if (selectedOptions.contains(option)) {
-        Constraint decompose = cs.boolVar(true)
-                                 .imp(variable.asBoolVar())
-                                 .decompose();
-        addedConstraints.add(decompose);
-        decompose.post();
+        Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar()).decompose();
+        addedConstraints.add(constraint);
+        constraint.post();
       } else if (!isPartialConfiguration) {
-        Constraint constraint = cs.boolVar(true)
-                                  .imp(variable.asBoolVar().not())
-                                  .decompose();
+        Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar().not()).decompose();
         addedConstraints.add(constraint);
         constraint.post();
       }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import commands.CheckSatisfiabilityCommand;
 import commands.LoadVMCommand;
 import commands.SelectSolverCommand;
 
@@ -21,6 +22,7 @@ public final class Main {
     GlobalContext context = new GlobalContext();
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
     shell.registerCommand(new SelectSolverCommand(context), "select-solver");
+    shell.registerCommand(new CheckSatisfiabilityCommand(context), "check-sat");
     shell.execute();
   }
 }

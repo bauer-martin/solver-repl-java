@@ -3,6 +3,7 @@ package utilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFactory;
 import spl_conqueror.VariabilityModel;
 
@@ -13,6 +14,9 @@ public final class GlobalContext {
 
   @Nullable
   private SolverFactory solverFactory;
+
+  @Nullable
+  private SatisfiabilityChecker satisfiabilityChecker;
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
@@ -42,5 +46,13 @@ public final class GlobalContext {
 
   public void setSolverFactory(SolverFactory solverFactory) {
     this.solverFactory = solverFactory;
+  }
+
+  @Nonnull
+  public SatisfiabilityChecker getSatisfiabilityChecker() {
+    if (satisfiabilityChecker == null) {
+      satisfiabilityChecker = getSolverFactory().createSatisfiabilityChecker();
+    }
+    return satisfiabilityChecker;
   }
 }
