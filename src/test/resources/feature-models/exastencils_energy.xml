@@ -1,0 +1,850 @@
+<vm name="FeatureModel">
+  <binaryOptions>
+    <configurationOption>
+      <name>root</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>
+      </parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_useAddressPrecalc</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>True</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_vectorize</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>True</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>simd_avoidUnaligned</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>opt_vectorize</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>True</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>data_alignFieldPointers</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>simd_avoidUnaligned</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_unroll_interleave</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>True</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_unroll</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_unroll_1</name>
+      <outputString>1</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>opt_unroll</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>opt_unroll_2</options>
+        <options>opt_unroll_3</options>
+        <options>opt_unroll_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_unroll_2</name>
+      <outputString>2</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>opt_unroll</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>opt_unroll_1</options>
+        <options>opt_unroll_3</options>
+        <options>opt_unroll_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_unroll_3</name>
+      <outputString>3</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>opt_unroll</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>opt_unroll_1</options>
+        <options>opt_unroll_2</options>
+        <options>opt_unroll_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>opt_unroll_4</name>
+      <outputString>4</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>opt_unroll</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>opt_unroll_1</options>
+        <options>opt_unroll_2</options>
+        <options>opt_unroll_3</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>no_explorationId</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>no_explorationId_0</name>
+      <outputString>0</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>no_explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>no_explorationId_1</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>no_explorationId_1</name>
+      <outputString>1</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>no_explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>no_explorationId_0</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>explorationId</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>explorationId_0</name>
+      <outputString>0</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>explorationId_1</options>
+        <options>explorationId_2</options>
+        <options>explorationId_3</options>
+        <options>explorationId_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>explorationId_1</name>
+      <outputString>1</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>explorationId_0</options>
+        <options>explorationId_2</options>
+        <options>explorationId_3</options>
+        <options>explorationId_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>explorationId_2</name>
+      <outputString>2</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>explorationId_0</options>
+        <options>explorationId_1</options>
+        <options>explorationId_3</options>
+        <options>explorationId_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>explorationId_3</name>
+      <outputString>3</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>explorationId_0</options>
+        <options>explorationId_1</options>
+        <options>explorationId_2</options>
+        <options>explorationId_4</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>explorationId_4</name>
+      <outputString>4</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>explorationId</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>explorationId_0</options>
+        <options>explorationId_1</options>
+        <options>explorationId_2</options>
+        <options>explorationId_3</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_0</name>
+      <outputString>0</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_64</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_8</name>
+      <outputString>8</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_64</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_10</name>
+      <outputString>10</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_64</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_16</name>
+      <outputString>16</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_64</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_20</name>
+      <outputString>20</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_64</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_32</name>
+      <outputString>32</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_64</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_64</name>
+      <outputString>64</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_x_128</name>
+      <outputString>128</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_x</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_x_0</options>
+        <options>poly_tileSize_x_8</options>
+        <options>poly_tileSize_x_10</options>
+        <options>poly_tileSize_x_16</options>
+        <options>poly_tileSize_x_20</options>
+        <options>poly_tileSize_x_32</options>
+        <options>poly_tileSize_x_64</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_0</name>
+      <outputString>0</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_64</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_8</name>
+      <outputString>8</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_64</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_10</name>
+      <outputString>10</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_64</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_16</name>
+      <outputString>16</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_64</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_20</name>
+      <outputString>20</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_64</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_32</name>
+      <outputString>32</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_64</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_64</name>
+      <outputString>64</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_y_128</name>
+      <outputString>128</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_y</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_y_0</options>
+        <options>poly_tileSize_y_8</options>
+        <options>poly_tileSize_y_10</options>
+        <options>poly_tileSize_y_16</options>
+        <options>poly_tileSize_y_20</options>
+        <options>poly_tileSize_y_32</options>
+        <options>poly_tileSize_y_64</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z</name>
+      <outputString>
+      </outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>root</parent>
+      <impliedOptions />
+      <excludedOptions />
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_0</name>
+      <outputString>0</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_64</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_8</name>
+      <outputString>8</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_64</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_10</name>
+      <outputString>10</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_64</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_16</name>
+      <outputString>16</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_64</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_20</name>
+      <outputString>20</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_64</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_32</name>
+      <outputString>32</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_64</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_64</name>
+      <outputString>64</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_128</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+    <configurationOption>
+      <name>poly_tileSize_z_128</name>
+      <outputString>128</outputString>
+      <prefix>
+      </prefix>
+      <postfix>
+      </postfix>
+      <parent>poly_tileSize_z</parent>
+      <impliedOptions />
+      <excludedOptions>
+        <options>poly_tileSize_z_0</options>
+        <options>poly_tileSize_z_8</options>
+        <options>poly_tileSize_z_10</options>
+        <options>poly_tileSize_z_16</options>
+        <options>poly_tileSize_z_20</options>
+        <options>poly_tileSize_z_32</options>
+        <options>poly_tileSize_z_64</options>
+      </excludedOptions>
+      <optional>False</optional>
+    </configurationOption>
+  </binaryOptions>
+  <numericOptions />
+  <booleanConstraints>
+    <constraint>!opt_unroll_interleave | !opt_unroll_1</constraint>
+    <constraint>!no_explorationId_0 | !explorationId_0</constraint>
+    <constraint>!no_explorationId_1 | !explorationId_1</constraint>
+    <constraint>!no_explorationId_1 | !explorationId_2</constraint>
+    <constraint>!no_explorationId_1 | !explorationId_3</constraint>
+    <constraint>!no_explorationId_1 | !explorationId_4</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_8</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_10</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_16</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_20</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_32</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_64</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_x_128</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_8</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_10</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_16</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_20</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_32</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_64</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_y_128</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_8</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_10</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_16</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_20</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_32</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_64</constraint>
+    <constraint>!no_explorationId_1 | !poly_tileSize_z_128</constraint>
+  </booleanConstraints>
+  <nonBooleanConstraints />
+  <mixedConstraints />
+</vm>
