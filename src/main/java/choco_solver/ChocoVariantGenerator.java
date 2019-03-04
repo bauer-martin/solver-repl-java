@@ -1,6 +1,7 @@
 package choco_solver;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
@@ -76,6 +77,61 @@ class ChocoVariantGenerator implements VariantGenerator {
       result = optimalConfig;
     } else {
       result = null;
+    }
+
+    // reset constraint system
+    addedConstraints.forEach(cs::unpost);
+    solver.reset();
+
+    return result;
+  }
+
+  @Nonnull
+  @Override
+  public List<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
+                                                        Collection<BinaryOption> config,
+                                                        Collection<BinaryOption> unwantedOptions) {
+    Model cs = context.getConstraintSystem();
+    Collection<Constraint> addedConstraints = new ArrayList<>();
+
+    // feature selection
+    for (BinaryOption option : config) {
+      Variable variable = context.getVariable(option);
+      Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar()).decompose();
+      addedConstraints.add(constraint);
+      constraint.post();
+    }
+
+    // defining goals
+    BoolVar[] goals = new BoolVar[context.getVariableCount()];
+    int[] coefficients = new int[context.getVariableCount()];
+    int index = 0;
+    for (Entry<ConfigurationOption, Variable> entry : context) {
+      BinaryOption option = (BinaryOption) entry.getKey();
+      goals[index] = entry.getValue().asBoolVar();
+      coefficients[index] = unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1;
+      index++;
+    }
+    IntVar selectedOptionsCountVar = cs.intVar("selectedOptionsCount", IntVar.MIN_INT_BOUND,
+                                               IntVar.MAX_INT_BOUND, true);
+    Constraint constraint = cs.scalar(goals, coefficients, "=", selectedOptionsCountVar);
+    addedConstraints.add(constraint);
+    constraint.post();
+
+    cs.setObjective(!minimize, selectedOptionsCountVar);
+
+    Solver solver = cs.getSolver();
+    List<Solution> solutions = solver.findAllOptimalSolutions(selectedOptionsCountVar, !minimize);
+    List<List<BinaryOption>> result = new ArrayList<>(solutions.size());
+    for (Solution solution : solutions) {
+      List<BinaryOption> optimalConfig = new ArrayList<>(context.getVariableCount());
+      for (Entry<ConfigurationOption, Variable> entry : context) {
+        int value = solution.getIntVal(entry.getValue().asBoolVar());
+        if (value == 1) {
+          optimalConfig.add((BinaryOption) entry.getKey());
+        }
+      }
+      result.add(optimalConfig);
     }
 
     // reset constraint system

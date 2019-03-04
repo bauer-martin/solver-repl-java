@@ -26,4 +26,12 @@ public final class ParsingUtils {
   public static String binaryOptionsToString(Collection<BinaryOption> options) {
     return options.stream().map(BinaryOption::getName).collect(Collectors.joining(","));
   }
+
+  @Nonnull
+  public static <E extends Collection<BinaryOption>> String binaryConfigsToString(
+      Collection<E> configs) {
+    return configs.stream()
+                  .map(ParsingUtils::binaryOptionsToString)
+                  .collect(Collectors.joining(";"));
+  }
 }
