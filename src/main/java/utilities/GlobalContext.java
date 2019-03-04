@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFactory;
 import spl_conqueror.VariabilityModel;
+import spl_conqueror.VariantGenerator;
 
 public final class GlobalContext {
 
@@ -17,6 +18,9 @@ public final class GlobalContext {
 
   @Nullable
   private SatisfiabilityChecker satisfiabilityChecker;
+
+  @Nullable
+  private VariantGenerator variantGenerator;
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
@@ -54,5 +58,12 @@ public final class GlobalContext {
       satisfiabilityChecker = getSolverFactory().createSatisfiabilityChecker();
     }
     return satisfiabilityChecker;
+  }
+
+  public VariantGenerator getVariantGenerator() {
+    if (variantGenerator == null) {
+      variantGenerator = getSolverFactory().createVariantGenerator();
+    }
+    return variantGenerator;
   }
 }

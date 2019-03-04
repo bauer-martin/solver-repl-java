@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.stream.Stream;
 
 import commands.CheckSatisfiabilityCommand;
+import commands.FindOptimalConfigCommand;
 import commands.LoadVMCommand;
 import commands.SelectSolverCommand;
 
@@ -42,6 +43,7 @@ public final class Main {
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
     shell.registerCommand(new SelectSolverCommand(context), "select-solver");
     shell.registerCommand(new CheckSatisfiabilityCommand(context), "check-sat");
+    shell.registerCommand(new FindOptimalConfigCommand(context), "find-optimal-config");
     shell.execute();
   }
 }

@@ -6,4 +6,7 @@ public interface SolverFactory {
 
   @Nonnull
   SatisfiabilityChecker createSatisfiabilityChecker();
+
+  @Nonnull
+  VariantGenerator createVariantGenerator();
 }

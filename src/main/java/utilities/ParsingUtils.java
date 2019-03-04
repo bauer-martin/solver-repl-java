@@ -1,6 +1,7 @@
 package utilities;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,5 +20,10 @@ public final class ParsingUtils {
     return Arrays.stream(str.split(","))
                  .map(vm::getBinaryOption)
                  .collect(Collectors.toList());
+  }
+
+  @Nonnull
+  public static String binaryOptionsToString(Collection<BinaryOption> options) {
+    return options.stream().map(BinaryOption::getName).collect(Collectors.joining(","));
   }
 }

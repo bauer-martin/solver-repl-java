@@ -162,4 +162,16 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   Model getConstraintSystem() {
     return model;
   }
+
+  int getVariableCount() {
+    return optionToVar.size();
+  }
+
+  @Nonnull
+  Variable getVariable(ConfigurationOption option) {
+    if (!optionToVar.containsKey(option)) {
+      throw new IllegalArgumentException(option.getName() + " is not used as variable");
+    }
+    return optionToVar.get(option);
+  }
 }
