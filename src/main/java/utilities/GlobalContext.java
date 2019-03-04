@@ -3,12 +3,16 @@ package utilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import spl_conqueror.SolverFactory;
 import spl_conqueror.VariabilityModel;
 
 public final class GlobalContext {
 
   @Nullable
   private VariabilityModel variabilityModel;
+
+  @Nullable
+  private SolverFactory solverFactory;
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
@@ -25,5 +29,18 @@ public final class GlobalContext {
     } else {
       throw new IllegalStateException("changing the variability model is not supported");
     }
+  }
+
+  @Nonnull
+  private SolverFactory getSolverFactory() {
+    if (solverFactory == null) {
+      throw new IllegalStateException("no solver factory has been set");
+    } else {
+      return solverFactory;
+    }
+  }
+
+  public void setSolverFactory(SolverFactory solverFactory) {
+    this.solverFactory = solverFactory;
   }
 }

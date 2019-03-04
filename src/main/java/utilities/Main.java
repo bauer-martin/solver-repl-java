@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import commands.LoadVMCommand;
+import commands.SelectSolverCommand;
 
 public final class Main {
 
@@ -19,6 +20,7 @@ public final class Main {
     Shell shell = new Shell(in, System.out);
     GlobalContext context = new GlobalContext();
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
+    shell.registerCommand(new SelectSolverCommand(context), "select-solver");
     shell.execute();
   }
 }
