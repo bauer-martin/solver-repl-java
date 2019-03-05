@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +21,7 @@ import javax.annotation.Nullable;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariantGenerator;
+import utilities.Tuple;
 
 class ChocoVariantGenerator implements VariantGenerator {
 
@@ -156,6 +158,70 @@ class ChocoVariantGenerator implements VariantGenerator {
       }
       result.add(optimalConfig);
     }
+    return result;
+  }
+
+  @Nullable
+  @Override
+  public Tuple<List<BinaryOption>, List<BinaryOption>> generateConfigWithoutOption(
+      Collection<BinaryOption> config, BinaryOption optionToRemove) {
+    Model cs = context.getConstraintSystem();
+    Collection<Constraint> addedConstraints = new ArrayList<>();
+
+    // forbid the selection of this configuration option
+    Constraint constraint = cs.boolVar(true)
+                              .imp(context.getVariable(optionToRemove).asBoolVar().not())
+                              .decompose();
+    addedConstraints.add(constraint);
+    constraint.post();
+
+    // defining goals
+    BoolVar[] goals = new BoolVar[context.getVariableCount()];
+    int[] coefficients = new int[context.getVariableCount()];
+    int index = 0;
+    for (Entry<ConfigurationOption, Variable> entry : context) {
+      BinaryOption option = (BinaryOption) entry.getKey();
+      goals[index] = entry.getValue().asBoolVar();
+      // we use a large negative value for options contained in the original configuration to
+      // increase chances that the option gets selected again
+      // a positive value will lead to a small chance that this option gets selected when it is
+      // not part of the original configuration
+      coefficients[index] = config.contains(option) ? -1000 : 1000;
+      index++;
+    }
+    IntVar selectedOptionsCountVar = cs.intVar("selectedOptionsCount", IntVar.MIN_INT_BOUND,
+                                               IntVar.MAX_INT_BOUND, true);
+    Constraint constraint1 = cs.scalar(goals, coefficients, "=", selectedOptionsCountVar);
+    addedConstraints.add(constraint1);
+    constraint1.post();
+
+    cs.setObjective(false, selectedOptionsCountVar);
+
+    Solver solver = cs.getSolver();
+
+    Tuple<List<BinaryOption>, List<BinaryOption>> result;
+    if (solver.solve()) {
+      List<BinaryOption> optimalConfig = new ArrayList<>();
+      for (Entry<ConfigurationOption, Variable> entry : context) {
+        ESat value = entry.getValue().asBoolVar().getBooleanValue();
+        if (value == ESat.TRUE) {
+          optimalConfig.add((BinaryOption) entry.getKey());
+        }
+      }
+      // adding the options that have been removed from the original configuration
+      List<BinaryOption> removedElements
+          = config.stream()
+                  .filter(option -> !optimalConfig.contains(option))
+                  .collect(Collectors.toList());
+      result = new Tuple<>(optimalConfig, removedElements);
+    } else {
+      result = null;
+    }
+
+    // reset constraint system
+    addedConstraints.forEach(cs::unpost);
+    solver.reset();
+
     return result;
   }
 }

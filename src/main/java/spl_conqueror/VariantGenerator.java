@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import utilities.Tuple;
+
 public interface VariantGenerator {
 
   /**
@@ -59,5 +61,21 @@ public interface VariantGenerator {
   @Nonnull
   List<List<BinaryOption>> generateUpToNConfigs(int n);
 
+  /**
+   * The method aims at finding a configuration which is similar to the given configuration, but
+   * does not contain the optionToBeRemoved.
+   *
+   * @param config         The configuration for which we want to find a similar one.
+   * @param optionToRemove The binary configuration option that must not be part of the
+   *                       new configuration.
+   *
+   * @return A tuple consisting of a configuration that is valid, similar to the original
+   * configuration and does not contain the optionToBeRemoved and a list containing options that
+   * need to be removed from the given configuration to build a valid configuration. Null is
+   * returned if no valid configuration exists.
+   */
+  @Nullable
+  Tuple<List<BinaryOption>, List<BinaryOption>> generateConfigWithoutOption(
+      Collection<BinaryOption> config, BinaryOption optionToRemove);
 }
 
