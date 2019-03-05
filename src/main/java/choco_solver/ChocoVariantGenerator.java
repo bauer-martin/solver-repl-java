@@ -7,7 +7,6 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
-import org.chocosolver.util.ESat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,19 +66,8 @@ class ChocoVariantGenerator implements VariantGenerator {
     cs.setObjective(!minimize, selectedOptionsCountVar);
 
     Solver solver = cs.getSolver();
-    List<BinaryOption> result;
-    if (solver.solve()) {
-      List<BinaryOption> optimalConfig = new ArrayList<>();
-      for (Entry<ConfigurationOption, Variable> entry : context) {
-        ESat value = entry.getValue().asBoolVar().getBooleanValue();
-        if (value == ESat.TRUE) {
-          optimalConfig.add((BinaryOption) entry.getKey());
-        }
-      }
-      result = optimalConfig;
-    } else {
-      result = null;
-    }
+    Solution solution = solver.findSolution();
+    List<BinaryOption> result = solution == null ? null : toBinaryOptions(solution);
 
     // reset constraint system
     addedConstraints.forEach(cs::unpost);
@@ -146,19 +134,22 @@ class ChocoVariantGenerator implements VariantGenerator {
   }
 
   @Nonnull
-  private List<List<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
-    List<List<BinaryOption>> result = new ArrayList<>(solutions.size());
-    for (Solution solution : solutions) {
-      List<BinaryOption> optimalConfig = new ArrayList<>(context.getVariableCount());
-      for (Entry<ConfigurationOption, Variable> entry : context) {
-        int value = solution.getIntVal(entry.getValue().asBoolVar());
-        if (value == 1) {
-          optimalConfig.add((BinaryOption) entry.getKey());
-        }
+  private List<BinaryOption> toBinaryOptions(Solution solution) {
+    List<BinaryOption> config = new ArrayList<>(context.getVariableCount());
+    for (Entry<ConfigurationOption, Variable> entry : context) {
+      int value = solution.getIntVal(entry.getValue().asBoolVar());
+      if (value == 1) {
+        config.add((BinaryOption) entry.getKey());
       }
-      result.add(optimalConfig);
     }
-    return result;
+    return config;
+  }
+
+  @Nonnull
+  private List<List<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
+    return solutions.stream()
+                    .map(this::toBinaryOptions)
+                    .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));
   }
 
   @Nullable
@@ -198,24 +189,18 @@ class ChocoVariantGenerator implements VariantGenerator {
     cs.setObjective(false, selectedOptionsCountVar);
 
     Solver solver = cs.getSolver();
-
+    Solution solution = solver.findOptimalSolution(selectedOptionsCountVar, false);
     Tuple<List<BinaryOption>, List<BinaryOption>> result;
-    if (solver.solve()) {
-      List<BinaryOption> optimalConfig = new ArrayList<>();
-      for (Entry<ConfigurationOption, Variable> entry : context) {
-        ESat value = entry.getValue().asBoolVar().getBooleanValue();
-        if (value == ESat.TRUE) {
-          optimalConfig.add((BinaryOption) entry.getKey());
-        }
-      }
+    if (solution == null) {
+      result = null;
+    } else {
+      List<BinaryOption> optimalConfig = toBinaryOptions(solution);
       // adding the options that have been removed from the original configuration
       List<BinaryOption> removedElements
           = config.stream()
                   .filter(option -> !optimalConfig.contains(option))
                   .collect(Collectors.toList());
       result = new Tuple<>(optimalConfig, removedElements);
-    } else {
-      result = null;
     }
 
     // reset constraint system
