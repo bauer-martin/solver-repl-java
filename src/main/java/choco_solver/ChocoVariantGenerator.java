@@ -122,6 +122,29 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     Solver solver = cs.getSolver();
     List<Solution> solutions = solver.findAllOptimalSolutions(selectedOptionsCountVar, !minimize);
+    List<List<BinaryOption>> result = toBinaryOptions(solutions);
+
+    // reset constraint system
+    addedConstraints.forEach(cs::unpost);
+    solver.reset();
+
+    return result;
+  }
+
+  @Nonnull
+  @Override
+  public List<List<BinaryOption>> generateUpToNConfigs(int n) {
+    Model cs = context.getConstraintSystem();
+    Solver solver = cs.getSolver();
+    if (n > 0) {
+      solver.limitSolution(n);
+    }
+    List<Solution> solutions = solver.findAllSolutions();
+    return toBinaryOptions(solutions);
+  }
+
+  @Nonnull
+  private List<List<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
     List<List<BinaryOption>> result = new ArrayList<>(solutions.size());
     for (Solution solution : solutions) {
       List<BinaryOption> optimalConfig = new ArrayList<>(context.getVariableCount());
@@ -133,11 +156,6 @@ class ChocoVariantGenerator implements VariantGenerator {
       }
       result.add(optimalConfig);
     }
-
-    // reset constraint system
-    addedConstraints.forEach(cs::unpost);
-    solver.reset();
-
     return result;
   }
 }

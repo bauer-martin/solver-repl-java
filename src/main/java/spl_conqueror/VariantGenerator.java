@@ -44,5 +44,20 @@ public interface VariantGenerator {
   List<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
                                                  Collection<BinaryOption> config,
                                                  Collection<BinaryOption> unwantedOptions);
+
+  /**
+   * Generates up to n solutions of the variability model.
+   * Note that this method may also generate less than n solutions if the variability model does
+   * not contain sufficient solutions.
+   * Moreover, in the case that <code>n < 0</code>, all solutions are generated.
+   *
+   * @param n The number of solutions to obtain.
+   *
+   * @return A list of configurations, in which a configuration is a list of selected binary
+   * options.
+   */
+  @Nonnull
+  List<List<BinaryOption>> generateUpToNConfigs(int n);
+
 }
 
