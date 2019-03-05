@@ -27,15 +27,11 @@ public final class FindAllOptimalConfigsCommand extends ShellCommand {
       return error("optimization goal not specified");
     }
     boolean minimize = tokens[0].equals("minimize");
-    if (tokens.length < 2) {
-      return error("no configuration specified");
-    }
     VariabilityModel vm = context.getVariabilityModel();
-    String optionsString = tokens[1];
-    List<BinaryOption> config = binaryOptionsFromString(optionsString, vm);
-    List<BinaryOption> unwantedOptions;
-    unwantedOptions = tokens.length < 3 ? Collections.emptyList()
-                                        : binaryOptionsFromString(tokens[2], vm);
+    List<BinaryOption> config = tokens.length < 2 ? Collections.emptyList()
+                                                  : binaryOptionsFromString(tokens[1], vm);
+    List<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptyList()
+                                                           : binaryOptionsFromString(tokens[2], vm);
 
     List<List<BinaryOption>> optimalConfigs =
         context.getVariantGenerator().findAllOptimalConfigs(minimize, config, unwantedOptions);
