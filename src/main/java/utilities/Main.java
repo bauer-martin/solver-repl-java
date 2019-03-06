@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import commands.CheckSatisfiabilityCommand;
 import commands.FindAllOptimalConfigsCommand;
 import commands.FindOptimalConfigCommand;
+import commands.GenerateAllVariantsCommand;
 import commands.GenerateConfigWithoutOptionCommand;
 import commands.GenerateUpToNConfigsCommand;
 import commands.LoadVMCommand;
@@ -51,6 +52,7 @@ public final class Main {
     shell.registerCommand(new GenerateUpToNConfigsCommand(context), "generate-up-to");
     shell.registerCommand(new GenerateConfigWithoutOptionCommand(context),
                           "generate-config-without-option");
+    shell.registerCommand(new GenerateAllVariantsCommand(context), "generate-all-variants");
     shell.execute();
   }
 }

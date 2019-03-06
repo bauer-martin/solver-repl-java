@@ -77,5 +77,16 @@ public interface VariantGenerator {
   @Nullable
   Tuple<List<BinaryOption>, List<BinaryOption>> generateConfigWithoutOption(
       Collection<BinaryOption> config, BinaryOption optionToRemove);
+
+  /**
+   * Generates all valid combinations of all configuration options in the variability model.
+   *
+   * @param optionsToConsider The options that should be considered. All other options are
+   *                          ignored.
+   *
+   * @return Returns a list of binary options.
+   */
+  @Nonnull
+  Collection<List<BinaryOption>> generateAllVariants(List<BinaryOption> optionsToConsider);
 }
 
