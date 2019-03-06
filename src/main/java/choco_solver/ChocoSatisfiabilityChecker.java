@@ -30,29 +30,21 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
     Solver solver = cs.getSolver();
 
     // feature selection
-    Collection<Constraint> addedConstraints = new ArrayList<>();
     for (Entry<ConfigurationOption, Variable> entry : context) {
       BinaryOption option = (BinaryOption) entry.getKey();
       Variable variable = entry.getValue();
 
       if (selectedOptions.contains(option)) {
-        Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar()).decompose();
-        addedConstraints.add(constraint);
-        constraint.post();
+        cs.boolVar(true).imp(variable.asBoolVar()).post();
       } else if (!isPartialConfiguration) {
-        Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar().not()).decompose();
-        addedConstraints.add(constraint);
-        constraint.post();
+        cs.boolVar(true).imp(variable.asBoolVar().not()).post();
       }
     }
 
     // check if configuration is valid
     boolean isSolvable = solver.solve();
 
-    // reset constraint system
-    addedConstraints.forEach(cs::unpost);
-    solver.reset();
-
+    context.resetConstraintSystem();
     return isSolvable;
   }
 }

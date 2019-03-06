@@ -3,7 +3,6 @@ package choco_solver;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -38,14 +37,11 @@ class ChocoVariantGenerator implements VariantGenerator {
                                               Collection<BinaryOption> config,
                                               Collection<BinaryOption> unwantedOptions) {
     Model cs = context.getConstraintSystem();
-    Collection<Constraint> addedConstraints = new ArrayList<>();
 
     // feature selection
     for (BinaryOption option : config) {
       Variable variable = context.getVariable(option);
-      Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar()).decompose();
-      addedConstraints.add(constraint);
-      constraint.post();
+      cs.boolVar(true).imp(variable.asBoolVar()).post();
     }
 
     // defining goals
@@ -60,9 +56,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     }
     IntVar selectedOptionsCountVar = cs.intVar("selectedOptionsCount", IntVar.MIN_INT_BOUND,
                                                IntVar.MAX_INT_BOUND, true);
-    Constraint constraint = cs.scalar(goals, coefficients, "=", selectedOptionsCountVar);
-    addedConstraints.add(constraint);
-    constraint.post();
+    cs.scalar(goals, coefficients, "=", selectedOptionsCountVar).post();
 
     cs.setObjective(!minimize, selectedOptionsCountVar);
 
@@ -70,10 +64,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     Solution solution = solver.findSolution();
     List<BinaryOption> result = solution == null ? null : toBinaryOptions(solution);
 
-    // reset constraint system
-    addedConstraints.forEach(cs::unpost);
-    solver.reset();
-
+    context.resetConstraintSystem();
     return result;
   }
 
@@ -83,14 +74,11 @@ class ChocoVariantGenerator implements VariantGenerator {
                                                         Collection<BinaryOption> config,
                                                         Collection<BinaryOption> unwantedOptions) {
     Model cs = context.getConstraintSystem();
-    Collection<Constraint> addedConstraints = new ArrayList<>();
 
     // feature selection
     for (BinaryOption option : config) {
       Variable variable = context.getVariable(option);
-      Constraint constraint = cs.boolVar(true).imp(variable.asBoolVar()).decompose();
-      addedConstraints.add(constraint);
-      constraint.post();
+      cs.boolVar(true).imp(variable.asBoolVar()).post();
     }
 
     // defining goals
@@ -105,9 +93,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     }
     IntVar selectedOptionsCountVar = cs.intVar("selectedOptionsCount", IntVar.MIN_INT_BOUND,
                                                IntVar.MAX_INT_BOUND, true);
-    Constraint constraint = cs.scalar(goals, coefficients, "=", selectedOptionsCountVar);
-    addedConstraints.add(constraint);
-    constraint.post();
+    cs.scalar(goals, coefficients, "=", selectedOptionsCountVar).post();
 
     cs.setObjective(!minimize, selectedOptionsCountVar);
 
@@ -115,10 +101,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     List<Solution> solutions = solver.findAllOptimalSolutions(selectedOptionsCountVar, !minimize);
     List<List<BinaryOption>> result = toBinaryOptions(solutions);
 
-    // reset constraint system
-    addedConstraints.forEach(cs::unpost);
-    solver.reset();
-
+    context.resetConstraintSystem();
     return result;
   }
 
@@ -158,14 +141,9 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Tuple<List<BinaryOption>, List<BinaryOption>> generateConfigWithoutOption(
       Collection<BinaryOption> config, BinaryOption optionToRemove) {
     Model cs = context.getConstraintSystem();
-    Collection<Constraint> addedConstraints = new ArrayList<>();
 
     // forbid the selection of this configuration option
-    Constraint constraint = cs.boolVar(true)
-                              .imp(context.getVariable(optionToRemove).asBoolVar().not())
-                              .decompose();
-    addedConstraints.add(constraint);
-    constraint.post();
+    cs.boolVar(true).imp(context.getVariable(optionToRemove).asBoolVar().not()).post();
 
     // defining goals
     BoolVar[] goals = new BoolVar[context.getVariableCount()];
@@ -183,9 +161,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     }
     IntVar selectedOptionsCountVar = cs.intVar("selectedOptionsCount", IntVar.MIN_INT_BOUND,
                                                IntVar.MAX_INT_BOUND, true);
-    Constraint constraint1 = cs.scalar(goals, coefficients, "=", selectedOptionsCountVar);
-    addedConstraints.add(constraint1);
-    constraint1.post();
+    cs.scalar(goals, coefficients, "=", selectedOptionsCountVar).post();
 
     cs.setObjective(false, selectedOptionsCountVar);
 
@@ -204,10 +180,7 @@ class ChocoVariantGenerator implements VariantGenerator {
       result = new Tuple<>(optimalConfig, removedElements);
     }
 
-    // reset constraint system
-    addedConstraints.forEach(cs::unpost);
-    solver.reset();
-
+    context.resetConstraintSystem();
     return result;
   }
 

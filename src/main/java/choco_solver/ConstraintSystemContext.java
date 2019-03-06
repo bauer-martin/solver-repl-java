@@ -4,6 +4,7 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.Variable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,12 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
 
   @Nonnull
   private final Map<ConfigurationOption, Variable> optionToVar;
+
+  private boolean constraintSystemIsInUse;
+
+  private int nbVars;
+
+  private int nbCstrs;
 
   private ConstraintSystemContext(VariabilityModel vm) {
     this.vm = vm;
@@ -160,7 +167,22 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
 
   @Nonnull
   Model getConstraintSystem() {
+    if (constraintSystemIsInUse) {
+      throw new UnsupportedOperationException("Constraint system can not be used more than once! "
+                                              + "Call resetConstraintSystem() first!");
+    }
+    nbVars = model.getNbVars();
+    nbCstrs = model.getNbCstrs();
+    constraintSystemIsInUse = true;
     return model;
+  }
+
+  void resetConstraintSystem() {
+    Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
+    Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
+    model.getCachedConstants().clear();
+    model.getSolver().hardReset();
+    constraintSystemIsInUse = false;
   }
 
   int getVariableCount() {
