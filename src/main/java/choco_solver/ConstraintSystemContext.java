@@ -196,4 +196,9 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
     }
     return optionToVar.get(option);
   }
+
+  @Nonnull
+  VariabilityModel getVariabilityModel() {
+    return vm;
+  }
 }

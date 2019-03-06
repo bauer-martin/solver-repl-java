@@ -2,7 +2,9 @@ package utilities;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -33,5 +35,19 @@ public final class ParsingUtils {
     return configs.stream()
                   .map(ParsingUtils::binaryOptionsToString)
                   .collect(Collectors.joining(";"));
+  }
+
+  @Nonnull
+  public static Map<List<BinaryOption>, Integer> featureWeightFromString(String str,
+                                                                         VariabilityModel vm) {
+    String[] entryTokens = str.split(";");
+    Map<List<BinaryOption>, Integer> map = new HashMap<>(entryTokens.length);
+    for (String entryToken : entryTokens) {
+      String[] tokens = entryToken.split("=");
+      List<BinaryOption> config = binaryOptionsFromString(tokens[0], vm);
+      int weight = Integer.parseInt(tokens[1]);
+      map.put(config, weight);
+    }
+    return map;
   }
 }

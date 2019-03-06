@@ -10,9 +10,11 @@ import java.nio.charset.Charset;
 import java.util.stream.Stream;
 
 import commands.CheckSatisfiabilityCommand;
+import commands.ClearBucketCacheCommand;
 import commands.FindAllOptimalConfigsCommand;
 import commands.FindOptimalConfigCommand;
 import commands.GenerateAllVariantsCommand;
+import commands.GenerateConfigFromBucketCommand;
 import commands.GenerateConfigWithoutOptionCommand;
 import commands.GenerateUpToNConfigsCommand;
 import commands.LoadVMCommand;
@@ -53,6 +55,8 @@ public final class Main {
     shell.registerCommand(new GenerateConfigWithoutOptionCommand(context),
                           "generate-config-without-option");
     shell.registerCommand(new GenerateAllVariantsCommand(context), "generate-all-variants");
+    shell.registerCommand(new GenerateConfigFromBucketCommand(context), "generate-config-from-bucket");
+    shell.registerCommand(new ClearBucketCacheCommand(context), "clear-bucket-cache");
     shell.execute();
   }
 }

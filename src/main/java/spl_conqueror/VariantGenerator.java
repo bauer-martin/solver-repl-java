@@ -2,6 +2,7 @@ package spl_conqueror;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -88,5 +89,20 @@ public interface VariantGenerator {
    */
   @Nonnull
   Collection<List<BinaryOption>> generateAllVariants(List<BinaryOption> optionsToConsider);
+
+  /**
+   * This method returns a configuration with the given number of selected features.
+   *
+   * @param numberSelectedFeatures The number of features that should be selected.
+   * @param featureWeight          The weight of certain feature combinations.
+   * @param excludedConfigs        The configurations that should be ignored.
+   *
+   * @return A list of binary options.
+   */
+  @Nullable
+  List<BinaryOption> generateConfig(int numberSelectedFeatures,
+                                    Map<List<BinaryOption>, Integer> featureWeight,
+                                    Collection<List<BinaryOption>> excludedConfigs);
+
 }
 

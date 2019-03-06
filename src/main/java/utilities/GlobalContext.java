@@ -1,8 +1,14 @@
 package utilities;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import spl_conqueror.BinaryOption;
 import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFactory;
 import spl_conqueror.VariabilityModel;
@@ -21,6 +27,9 @@ public final class GlobalContext {
 
   @Nullable
   private VariantGenerator variantGenerator;
+
+  @Nonnull
+  public final Map<Integer, Collection<List<BinaryOption>>> buckets = new HashMap<>();
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {

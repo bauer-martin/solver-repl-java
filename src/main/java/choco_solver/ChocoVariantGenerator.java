@@ -1,5 +1,7 @@
 package choco_solver;
 
+import static java.util.Comparator.comparing;
+
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -8,9 +10,11 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -206,5 +210,84 @@ class ChocoVariantGenerator implements VariantGenerator {
       allVariants.add(config);
     }
     return allVariants;
+  }
+
+  @Nullable
+  @Override
+  public List<BinaryOption> generateConfig(int numberSelectedFeatures,
+                                           Map<List<BinaryOption>, Integer> featureWeight,
+                                           Collection<List<BinaryOption>> excludedConfigs) {
+    Model cs = context.getConstraintSystem();
+    List<Entry<List<BinaryOption>, Integer>> featureRanking
+        = featureWeight.entrySet()
+                       .stream()
+                       .sorted(comparing(Entry::getValue))
+                       .collect(Collectors.toList());
+
+    // the first goal of this method is, to have an exact number of features selected
+    BoolVar[] allVariables = new BoolVar[context.getVariableCount()];
+    int index = 0;
+    for (Entry<ConfigurationOption, Variable> entry : context) {
+      allVariables[index] = entry.getValue().asBoolVar();
+      index++;
+    }
+    cs.sum(allVariables, "=", numberSelectedFeatures).post();
+
+    // add the excluded configurations as constraints
+    List<BinaryOption> allBinaryOptions = context.getVariabilityModel().getBinaryOptions();
+    for (List<BinaryOption> excludedConfig : excludedConfigs) {
+      BoolVar[] ands = new BoolVar[allBinaryOptions.size()];
+      for (int i = 0; i < allBinaryOptions.size(); i++) {
+        BinaryOption option = allBinaryOptions.get(i);
+        BoolVar variable = context.getVariable(option).asBoolVar();
+        ands[i] = excludedConfig.contains(option) ? variable : variable.not();
+      }
+      cs.not(cs.and(ands)).post();
+    }
+
+    List<BinaryOption> approximateOptimal = getSmallWeightConfig(cs, featureRanking);
+    List<BinaryOption> result;
+    if (approximateOptimal == null) {
+      Solution solution = cs.getSolver().findSolution();
+      result = solution == null ? null : toBinaryOptions(solution);
+    } else {
+      result = approximateOptimal;
+    }
+
+    context.resetConstraintSystem();
+    return result;
+  }
+
+  @Nullable
+  private List<BinaryOption> getSmallWeightConfig(
+      Model cs, Iterable<Entry<List<BinaryOption>, Integer>> featureRanking) {
+    for (Entry<List<BinaryOption>, Integer> entry : featureRanking) {
+      List<BinaryOption> candidates = entry.getKey();
+
+      // record current state
+      int nbVars = cs.getNbVars();
+      int nbCstrs = cs.getNbCstrs();
+
+      // force features to be selected
+      BoolVar[] ands = candidates.stream()
+                                 .map(option -> context.getVariable(option).asBoolVar())
+                                 .toArray(BoolVar[]::new);
+      cs.and(ands).post();
+
+      // check if satisfiable
+      Solution solution = cs.getSolver().findSolution();
+
+      // soft reset constraint system
+      Arrays.stream(cs.getCstrs(), nbCstrs, cs.getNbCstrs()).forEach(cs::unpost);
+      Arrays.stream(cs.getVars(), nbVars, cs.getNbVars()).forEach(cs::unassociates);
+      cs.getCachedConstants().clear();
+      cs.getSolver().reset();
+
+      // stop if solution has been found
+      if (solution != null) {
+        return toBinaryOptions(solution);
+      }
+    }
+    return null;
   }
 }
