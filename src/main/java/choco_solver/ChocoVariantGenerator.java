@@ -5,6 +5,7 @@ import static java.util.Comparator.comparing;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.search.limits.SolutionCounter;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -115,10 +116,8 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
     Model cs = context.getConstraintSystem();
     Solver solver = cs.getSolver();
-    if (n > 0) {
-      solver.limitSolution(n);
-    }
-    List<Solution> solutions = solver.findAllSolutions();
+    List<Solution> solutions = n > 0 ? solver.findAllSolutions(new SolutionCounter(cs, n))
+                                     : solver.findAllSolutions();
     return toBinaryOptions(solutions);
   }
 
