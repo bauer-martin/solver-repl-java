@@ -38,8 +38,7 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
     VariabilityModel vm = context.getVariabilityModel();
     featureWeight = tokens.length < 2 ? Collections.emptyMap()
                                       : ParsingUtils.featureWeightFromString(tokens[1], vm);
-    Collection<List<BinaryOption>> excludedConfigs = context.buckets.computeIfAbsent(
-        selectedOptionsCount, n -> new ArrayList<>());
+    Collection<List<BinaryOption>> excludedConfigs = context.getBucket(selectedOptionsCount);
     VariantGenerator variantGenerator = context.getVariantGenerator();
     List<BinaryOption> config = variantGenerator.generateConfig(selectedOptionsCount,
                                                                 featureWeight,

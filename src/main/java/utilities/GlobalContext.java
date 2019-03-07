@@ -1,5 +1,6 @@
 package utilities;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,7 @@ public final class GlobalContext {
   private VariantGenerator variantGenerator;
 
   @Nonnull
-  public final Map<Integer, Collection<List<BinaryOption>>> buckets = new HashMap<>();
+  private final Map<Integer, Collection<List<BinaryOption>>> buckets = new HashMap<>();
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
@@ -74,5 +75,14 @@ public final class GlobalContext {
       variantGenerator = getSolverFactory().createVariantGenerator();
     }
     return variantGenerator;
+  }
+
+  @Nonnull
+  public Collection<List<BinaryOption>> getBucket(int selectedOptionCount) {
+    return buckets.computeIfAbsent(selectedOptionCount, n -> new ArrayList<>());
+  }
+
+  public void clearBucketCache() {
+    buckets.clear();
   }
 }
