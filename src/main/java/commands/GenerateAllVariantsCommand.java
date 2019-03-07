@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
+import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
@@ -30,8 +31,8 @@ public final class GenerateAllVariantsCommand extends ShellCommand {
     VariabilityModel vm = context.getVariabilityModel();
     Set<BinaryOption> optionsToConsider = decodedBinaryOptions(tokens[0], vm);
 
-    Collection<Set<BinaryOption>> allVariants = context.getVariantGenerator()
-                                                       .generateAllVariants(optionsToConsider);
+    VariantGenerator vg = context.getVariantGenerator();
+    Collection<Set<BinaryOption>> allVariants = vg.generateAllVariants(optionsToConsider);
     return encodedBinaryOptionsCollection(allVariants);
   }
 }

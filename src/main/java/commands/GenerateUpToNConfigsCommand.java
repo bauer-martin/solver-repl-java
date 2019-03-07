@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
+import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
@@ -27,8 +28,8 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
     } catch (NumberFormatException e) {
       return error("invalid number");
     }
-    Collection<Set<BinaryOption>> configs = context.getVariantGenerator()
-                                                   .generateUpToNConfigs(count);
+    VariantGenerator vg = context.getVariantGenerator();
+    Collection<Set<BinaryOption>> configs = vg.generateUpToNConfigs(count);
     return encodedBinaryOptionsCollection(configs);
   }
 }

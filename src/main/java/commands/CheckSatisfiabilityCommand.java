@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
+import spl_conqueror.SatisfiabilityChecker;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
@@ -39,7 +40,8 @@ public final class CheckSatisfiabilityCommand extends ShellCommand {
       return error("no configuration specified");
     }
     Set<BinaryOption> config = decodedBinaryOptions(tokens[1], context.getVariabilityModel());
-    boolean valid = context.getSatisfiabilityChecker().isValid(config, isPartialConfiguration);
+    SatisfiabilityChecker satChecker = context.getSatisfiabilityChecker();
+    boolean valid = satChecker.isValid(config, isPartialConfiguration);
     return String.valueOf(valid);
   }
 }

@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
+import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 import utilities.Tuple;
@@ -33,8 +34,9 @@ public final class GenerateConfigWithoutOptionCommand extends ShellCommand {
     }
     BinaryOption optionToRemove = vm.getBinaryOption(tokens[1]);
 
+    VariantGenerator vg = context.getVariantGenerator();
     Tuple<Set<BinaryOption>, Set<BinaryOption>> result
-        = context.getVariantGenerator().generateConfigWithoutOption(config, optionToRemove);
+        = vg.generateConfigWithoutOption(config, optionToRemove);
     if (result == null) {
       return "none";
     } else {

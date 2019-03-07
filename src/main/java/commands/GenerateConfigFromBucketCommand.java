@@ -55,10 +55,10 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
     featureWeight = tokens.length < 2 ? Collections.emptyMap()
                                       : decodeFeatureWeightMap(tokens[1], vm);
     Collection<Set<BinaryOption>> excludedConfigs = context.getBucket(selectedOptionsCount);
-    VariantGenerator variantGenerator = context.getVariantGenerator();
-    Set<BinaryOption> config = variantGenerator.generateConfig(selectedOptionsCount,
-                                                               featureWeight,
-                                                               excludedConfigs);
+    VariantGenerator vg = context.getVariantGenerator();
+    Set<BinaryOption> config = vg.generateConfig(selectedOptionsCount,
+                                                 featureWeight,
+                                                 excludedConfigs);
     if (config == null) {
       return "none";
     } else {

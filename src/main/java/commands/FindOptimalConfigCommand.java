@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
+import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
@@ -37,8 +38,8 @@ public final class FindOptimalConfigCommand extends ShellCommand {
     Set<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptySet()
                                                            : decodedBinaryOptions(tokens[2], vm);
 
-    Set<BinaryOption> optimalConfig =
-        context.getVariantGenerator().findOptimalConfig(minimize, config, unwantedOptions);
+    VariantGenerator vg = context.getVariantGenerator();
+    Set<BinaryOption> optimalConfig = vg.findOptimalConfig(minimize, config, unwantedOptions);
     return optimalConfig == null ? "none" : encodedBinaryOptions(optimalConfig);
   }
 }

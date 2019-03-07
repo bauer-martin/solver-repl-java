@@ -122,25 +122,6 @@ class ChocoVariantGenerator implements VariantGenerator {
     return toBinaryOptions(solutions);
   }
 
-  @Nonnull
-  private Set<BinaryOption> toBinaryOptions(Solution solution) {
-    Set<BinaryOption> config = new HashSet<>(context.getVariableCount());
-    for (Entry<ConfigurationOption, Variable> entry : context) {
-      int value = solution.getIntVal(entry.getValue().asBoolVar());
-      if (value == 1) {
-        config.add((BinaryOption) entry.getKey());
-      }
-    }
-    return config;
-  }
-
-  @Nonnull
-  private Collection<Set<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
-    return solutions.stream()
-                    .map(this::toBinaryOptions)
-                    .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));
-  }
-
   @Nullable
   @Override
   public Tuple<Set<BinaryOption>, Set<BinaryOption>> generateConfigWithoutOption(
@@ -292,5 +273,24 @@ class ChocoVariantGenerator implements VariantGenerator {
       }
     }
     return null;
+  }
+
+  @Nonnull
+  private Set<BinaryOption> toBinaryOptions(Solution solution) {
+    Set<BinaryOption> config = new HashSet<>(context.getVariableCount());
+    for (Entry<ConfigurationOption, Variable> entry : context) {
+      int value = solution.getIntVal(entry.getValue().asBoolVar());
+      if (value == 1) {
+        config.add((BinaryOption) entry.getKey());
+      }
+    }
+    return config;
+  }
+
+  @Nonnull
+  private Collection<Set<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
+    return solutions.stream()
+                    .map(this::toBinaryOptions)
+                    .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));
   }
 }
