@@ -12,11 +12,9 @@ import utilities.Tuple;
 public interface VariantGenerator {
 
   /**
-   * Based on a given (partial) configuration, we aim at finding the smallest valid configuration
-   * that has all options.
+   * Based on a given (partial) configuration, we search for the smallest (in terms of selected
+   * options) valid configuration.
    *
-   * @param minimize        If true, we search for the smallest (in terms of selected options)
-   *                        valid configuration. If false, we search for the largest one.
    * @param config          The (partial) configuration which needs to be expanded to be valid.
    * @param unwantedOptions Binary options that we do not want to become part of the
    *                        configuration. Might be part if there is no other valid configuration
@@ -25,16 +23,12 @@ public interface VariantGenerator {
    * @return The valid configuration (or null if there is none) that satisfies the VM and the goal.
    */
   @Nullable
-  Set<BinaryOption> findOptimalConfig(boolean minimize,
-                                      Set<BinaryOption> config,
-                                      Set<BinaryOption> unwantedOptions);
+  Set<BinaryOption> findOptimalConfig(Set<BinaryOption> config, Set<BinaryOption> unwantedOptions);
 
   /**
-   * Based on a given (partial) configuration and a variability model, we aim at finding all
-   * optimally maximal or minimal (in terms of selected binary options) configurations.
+   * Based on a given (partial) configuration, we search for all smallest (in terms of selected
+   * options) valid configurations.
    *
-   * @param minimize        If true, we search for the smallest (in terms of selected options)
-   *                        valid configurations. If false, we search for the largest ones.
    * @param config          The (partial) configuration which needs to be expanded to be valid.
    * @param unwantedOptions Binary options that we do not want to become part of the
    *                        configuration. Might be part if there is no other valid configuration
@@ -44,8 +38,7 @@ public interface VariantGenerator {
    * none)
    */
   @Nonnull
-  Collection<Set<BinaryOption>> findAllOptimalConfigs(boolean minimize,
-                                                      Set<BinaryOption> config,
+  Collection<Set<BinaryOption>> findAllOptimalConfigs(Set<BinaryOption> config,
                                                       Set<BinaryOption> unwantedOptions);
 
   /**

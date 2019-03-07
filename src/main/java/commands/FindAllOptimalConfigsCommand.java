@@ -25,19 +25,14 @@ public final class FindAllOptimalConfigsCommand extends ShellCommand {
   @Override
   public String execute(String argsString) {
     String[] tokens = argsString.split(" ");
-    if (tokens.length < 1 || tokens[0].length() < 1) {
-      return error("optimization goal not specified");
-    }
-    boolean minimize = tokens[0].equals("minimize");
     VariabilityModel vm = context.getVariabilityModel();
-    Set<BinaryOption> config = tokens.length < 2 ? Collections.emptySet()
+    Set<BinaryOption> config = tokens.length < 1 ? Collections.emptySet()
                                                  : decodedBinaryOptions(tokens[1], vm);
-    Set<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptySet()
+    Set<BinaryOption> unwantedOptions = tokens.length < 2 ? Collections.emptySet()
                                                           : decodedBinaryOptions(tokens[2], vm);
 
     VariantGenerator vg = context.getVariantGenerator();
-    Collection<Set<BinaryOption>> optimalConfigs = vg.findAllOptimalConfigs(minimize,
-                                                                            config,
+    Collection<Set<BinaryOption>> optimalConfigs = vg.findAllOptimalConfigs(config,
                                                                             unwantedOptions);
     return encodedBinaryOptionsCollection(optimalConfigs);
   }

@@ -40,8 +40,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nullable
   @Override
-  public Set<BinaryOption> findOptimalConfig(boolean minimize,
-                                             Set<BinaryOption> config,
+  public Set<BinaryOption> findOptimalConfig(Set<BinaryOption> config,
                                              Set<BinaryOption> unwantedOptions) {
     // get access to the constraint system
     Model cs = context.getConstraintSystem();
@@ -57,7 +56,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     // find an optimal solution
     Solver solver = cs.getSolver();
-    Solution optimalSolution = solver.findOptimalSolution(selectedOptionsCountVar, !minimize);
+    Solution optimalSolution = solver.findOptimalSolution(selectedOptionsCountVar, false);
     Set<BinaryOption> result = optimalSolution == null ? null : toBinaryOptions(optimalSolution);
 
     // cleanup
@@ -67,8 +66,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public Collection<Set<BinaryOption>> findAllOptimalConfigs(boolean minimize,
-                                                             Set<BinaryOption> config,
+  public Collection<Set<BinaryOption>> findAllOptimalConfigs(Set<BinaryOption> config,
                                                              Set<BinaryOption> unwantedOptions) {
     // get access to the constraint system
     Model cs = context.getConstraintSystem();
@@ -85,7 +83,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     // find all optimal solutions
     Solver solver = cs.getSolver();
     List<Solution> optimalSolutions = solver.findAllOptimalSolutions(selectedOptionsCountVar,
-                                                                     !minimize);
+                                                                     false);
     Collection<Set<BinaryOption>> result = toBinaryOptions(optimalSolutions);
 
     // cleanup
