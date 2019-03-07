@@ -3,6 +3,7 @@ package utilities;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -22,10 +23,10 @@ public final class ParsingUtils {
   }
 
   @Nonnull
-  public static List<BinaryOption> decodedBinaryOptions(String str, VariabilityModel vm) {
+  public static Set<BinaryOption> decodedBinaryOptions(String str, VariabilityModel vm) {
     return Arrays.stream(str.split(OPTION_SEPARATOR))
                  .map(vm::getBinaryOption)
-                 .collect(Collectors.toList());
+                 .collect(Collectors.toSet());
   }
 
   @Nonnull

@@ -3,6 +3,7 @@ package commands;
 import static utilities.ParsingUtils.decodedBinaryOptions;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -37,7 +38,7 @@ public final class CheckSatisfiabilityCommand extends ShellCommand {
     if (tokens.length < 2) {
       return error("no configuration specified");
     }
-    List<BinaryOption> config = decodedBinaryOptions(tokens[1], context.getVariabilityModel());
+    Set<BinaryOption> config = decodedBinaryOptions(tokens[1], context.getVariabilityModel());
     boolean valid = context.getSatisfiabilityChecker().isValid(config, isPartialConfiguration);
     return String.valueOf(valid);
   }

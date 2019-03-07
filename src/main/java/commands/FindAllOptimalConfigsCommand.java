@@ -5,7 +5,7 @@ import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -29,12 +29,12 @@ public final class FindAllOptimalConfigsCommand extends ShellCommand {
     }
     boolean minimize = tokens[0].equals("minimize");
     VariabilityModel vm = context.getVariabilityModel();
-    List<BinaryOption> config = tokens.length < 2 ? Collections.emptyList()
-                                                  : decodedBinaryOptions(tokens[1], vm);
-    List<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptyList()
-                                                           : decodedBinaryOptions(tokens[2], vm);
+    Set<BinaryOption> config = tokens.length < 2 ? Collections.emptySet()
+                                                 : decodedBinaryOptions(tokens[1], vm);
+    Set<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptySet()
+                                                          : decodedBinaryOptions(tokens[2], vm);
 
-    Collection<List<BinaryOption>> optimalConfigs =
+    Collection<Set<BinaryOption>> optimalConfigs =
         context.getVariantGenerator().findAllOptimalConfigs(minimize, config, unwantedOptions);
     return encodedBinaryOptionsCollection(optimalConfigs);
   }

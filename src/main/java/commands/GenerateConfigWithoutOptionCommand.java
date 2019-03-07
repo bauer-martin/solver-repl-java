@@ -3,7 +3,7 @@ package commands;
 import static utilities.ParsingUtils.decodedBinaryOptions;
 import static utilities.ParsingUtils.encodedBinaryOptions;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -27,19 +27,19 @@ public final class GenerateConfigWithoutOptionCommand extends ShellCommand {
       return error("no configuration specified");
     }
     VariabilityModel vm = context.getVariabilityModel();
-    List<BinaryOption> config = decodedBinaryOptions(tokens[0], vm);
+    Set<BinaryOption> config = decodedBinaryOptions(tokens[0], vm);
     if (tokens.length < 2) {
       return error("no option specified");
     }
     BinaryOption optionToRemove = vm.getBinaryOption(tokens[1]);
 
-    Tuple<List<BinaryOption>, List<BinaryOption>> result
+    Tuple<Set<BinaryOption>, Set<BinaryOption>> result
         = context.getVariantGenerator().generateConfigWithoutOption(config, optionToRemove);
     if (result == null) {
       return "none";
     } else {
-      List<BinaryOption> newConfig = result.getFirst();
-      List<BinaryOption> removedOptions = result.getSecond();
+      Set<BinaryOption> newConfig = result.getFirst();
+      Set<BinaryOption> removedOptions = result.getSecond();
       return String.format("%s %s",
                            encodedBinaryOptions(newConfig),
                            encodedBinaryOptions(removedOptions));

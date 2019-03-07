@@ -1,10 +1,10 @@
 package utilities;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,6 +17,9 @@ import spl_conqueror.VariantGenerator;
 
 public final class GlobalContext {
 
+  @Nonnull
+  private final Map<Integer, Collection<Set<BinaryOption>>> buckets = new HashMap<>();
+
   @Nullable
   private VariabilityModel variabilityModel;
 
@@ -28,9 +31,6 @@ public final class GlobalContext {
 
   @Nullable
   private VariantGenerator variantGenerator;
-
-  @Nonnull
-  private final Map<Integer, Collection<List<BinaryOption>>> buckets = new HashMap<>();
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
@@ -78,8 +78,8 @@ public final class GlobalContext {
   }
 
   @Nonnull
-  public Collection<List<BinaryOption>> getBucket(int selectedOptionCount) {
-    return buckets.computeIfAbsent(selectedOptionCount, n -> new ArrayList<>());
+  public Collection<Set<BinaryOption>> getBucket(int selectedOptionCount) {
+    return buckets.computeIfAbsent(selectedOptionCount, n -> new HashSet<>());
   }
 
   public void clearBucketCache() {

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -37,9 +38,9 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nullable
   @Override
-  public List<BinaryOption> findOptimalConfig(boolean minimize,
-                                              Collection<BinaryOption> config,
-                                              Collection<BinaryOption> unwantedOptions) {
+  public Set<BinaryOption> findOptimalConfig(boolean minimize,
+                                             Set<BinaryOption> config,
+                                             Set<BinaryOption> unwantedOptions) {
     Model cs = context.getConstraintSystem();
 
     // feature selection
@@ -66,7 +67,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     Solver solver = cs.getSolver();
     Solution solution = solver.findSolution();
-    List<BinaryOption> result = solution == null ? null : toBinaryOptions(solution);
+    Set<BinaryOption> result = solution == null ? null : toBinaryOptions(solution);
 
     context.resetConstraintSystem();
     return result;
@@ -74,9 +75,9 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public Collection<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
-                                                              Collection<BinaryOption> config,
-                                                              Collection<BinaryOption> unwantedOptions) {
+  public Collection<Set<BinaryOption>> findAllOptimalConfigs(boolean minimize,
+                                                              Set<BinaryOption> config,
+                                                              Set<BinaryOption> unwantedOptions) {
     Model cs = context.getConstraintSystem();
 
     // feature selection
@@ -103,7 +104,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     Solver solver = cs.getSolver();
     List<Solution> solutions = solver.findAllOptimalSolutions(selectedOptionsCountVar, !minimize);
-    Collection<List<BinaryOption>> result = toBinaryOptions(solutions);
+    Collection<Set<BinaryOption>> result = toBinaryOptions(solutions);
 
     context.resetConstraintSystem();
     return result;
@@ -111,7 +112,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public Collection<List<BinaryOption>> generateUpToNConfigs(int n) {
+  public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
     Model cs = context.getConstraintSystem();
     Solver solver = cs.getSolver();
     if (n > 0) {
@@ -122,8 +123,8 @@ class ChocoVariantGenerator implements VariantGenerator {
   }
 
   @Nonnull
-  private List<BinaryOption> toBinaryOptions(Solution solution) {
-    List<BinaryOption> config = new ArrayList<>(context.getVariableCount());
+  private Set<BinaryOption> toBinaryOptions(Solution solution) {
+    Set<BinaryOption> config = new HashSet<>(context.getVariableCount());
     for (Entry<ConfigurationOption, Variable> entry : context) {
       int value = solution.getIntVal(entry.getValue().asBoolVar());
       if (value == 1) {
@@ -134,7 +135,7 @@ class ChocoVariantGenerator implements VariantGenerator {
   }
 
   @Nonnull
-  private Collection<List<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
+  private Collection<Set<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
     return solutions.stream()
                     .map(this::toBinaryOptions)
                     .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));
@@ -142,8 +143,8 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nullable
   @Override
-  public Tuple<List<BinaryOption>, List<BinaryOption>> generateConfigWithoutOption(
-      Collection<BinaryOption> config, BinaryOption optionToRemove) {
+  public Tuple<Set<BinaryOption>, Set<BinaryOption>> generateConfigWithoutOption(
+      Set<BinaryOption> config, BinaryOption optionToRemove) {
     Model cs = context.getConstraintSystem();
 
     // forbid the selection of this configuration option
@@ -171,16 +172,16 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     Solver solver = cs.getSolver();
     Solution solution = solver.findOptimalSolution(selectedOptionsCountVar, false);
-    Tuple<List<BinaryOption>, List<BinaryOption>> result;
+    Tuple<Set<BinaryOption>, Set<BinaryOption>> result;
     if (solution == null) {
       result = null;
     } else {
-      List<BinaryOption> optimalConfig = toBinaryOptions(solution);
+      Set<BinaryOption> optimalConfig = toBinaryOptions(solution);
       // adding the options that have been removed from the original configuration
-      List<BinaryOption> removedElements
+      Set<BinaryOption> removedElements
           = config.stream()
                   .filter(option -> !optimalConfig.contains(option))
-                  .collect(Collectors.toList());
+                  .collect(Collectors.toSet());
       result = new Tuple<>(optimalConfig, removedElements);
     }
 
@@ -190,13 +191,13 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public Collection<List<BinaryOption>> generateAllVariants(List<BinaryOption> optionsToConsider) {
+  public Collection<Set<BinaryOption>> generateAllVariants(Set<BinaryOption> optionsToConsider) {
     Model cs = context.getConstraintSystem();
     Solver solver = cs.getSolver();
     List<Solution> solutions = solver.findAllSolutions();
-    Collection<List<BinaryOption>> allVariants = new HashSet<>();
+    Collection<Set<BinaryOption>> allVariants = new HashSet<>();
     for (Solution solution : solutions) {
-      List<BinaryOption> config = new ArrayList<>();
+      Set<BinaryOption> config = new HashSet<>();
       for (Entry<ConfigurationOption, Variable> entry : context) {
         BinaryOption option = (BinaryOption) entry.getKey();
         // ignore all options that should not be considered.
@@ -216,11 +217,11 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nullable
   @Override
-  public List<BinaryOption> generateConfig(int numberSelectedFeatures,
-                                           Map<List<BinaryOption>, Integer> featureWeight,
-                                           Collection<List<BinaryOption>> excludedConfigs) {
+  public Set<BinaryOption> generateConfig(int numberSelectedFeatures,
+                                           Map<Set<BinaryOption>, Integer> featureWeight,
+                                           Collection<Set<BinaryOption>> excludedConfigs) {
     Model cs = context.getConstraintSystem();
-    List<Entry<List<BinaryOption>, Integer>> featureRanking
+    List<Entry<Set<BinaryOption>, Integer>> featureRanking
         = featureWeight.entrySet()
                        .stream()
                        .sorted(comparing(Entry::getValue))
@@ -237,7 +238,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     // add the excluded configurations as constraints
     List<BinaryOption> allBinaryOptions = context.getVariabilityModel().getBinaryOptions();
-    for (List<BinaryOption> excludedConfig : excludedConfigs) {
+    for (Set<BinaryOption> excludedConfig : excludedConfigs) {
       BoolVar[] ands = new BoolVar[allBinaryOptions.size()];
       for (int i = 0; i < allBinaryOptions.size(); i++) {
         BinaryOption option = allBinaryOptions.get(i);
@@ -247,8 +248,8 @@ class ChocoVariantGenerator implements VariantGenerator {
       cs.not(cs.and(ands)).post();
     }
 
-    List<BinaryOption> approximateOptimal = getSmallWeightConfig(cs, featureRanking);
-    List<BinaryOption> result;
+    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(cs, featureRanking);
+    Set<BinaryOption> result;
     if (approximateOptimal == null) {
       Solution solution = cs.getSolver().findSolution();
       result = solution == null ? null : toBinaryOptions(solution);
@@ -261,10 +262,10 @@ class ChocoVariantGenerator implements VariantGenerator {
   }
 
   @Nullable
-  private List<BinaryOption> getSmallWeightConfig(
-      Model cs, Iterable<Entry<List<BinaryOption>, Integer>> featureRanking) {
-    for (Entry<List<BinaryOption>, Integer> entry : featureRanking) {
-      List<BinaryOption> candidates = entry.getKey();
+  private Set<BinaryOption> getSmallWeightConfig(
+      Model cs, Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
+    for (Entry<Set<BinaryOption>, Integer> entry : featureRanking) {
+      Set<BinaryOption> candidates = entry.getKey();
 
       // record current state
       int nbVars = cs.getNbVars();

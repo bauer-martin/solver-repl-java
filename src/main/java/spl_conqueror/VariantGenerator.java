@@ -1,8 +1,8 @@
 package spl_conqueror;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,9 +25,9 @@ public interface VariantGenerator {
    * @return The valid configuration (or null if there is none) that satisfies the VM and the goal.
    */
   @Nullable
-  List<BinaryOption> findOptimalConfig(boolean minimize,
-                                       Collection<BinaryOption> config,
-                                       Collection<BinaryOption> unwantedOptions);
+  Set<BinaryOption> findOptimalConfig(boolean minimize,
+                                      Set<BinaryOption> config,
+                                      Set<BinaryOption> unwantedOptions);
 
   /**
    * Based on a given (partial) configuration and a variability model, we aim at finding all
@@ -44,9 +44,9 @@ public interface VariantGenerator {
    * none)
    */
   @Nonnull
-  Collection<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
-                                                       Collection<BinaryOption> config,
-                                                       Collection<BinaryOption> unwantedOptions);
+  Collection<Set<BinaryOption>> findAllOptimalConfigs(boolean minimize,
+                                                      Set<BinaryOption> config,
+                                                      Set<BinaryOption> unwantedOptions);
 
   /**
    * Generates up to n solutions of the variability model.
@@ -60,7 +60,7 @@ public interface VariantGenerator {
    * options.
    */
   @Nonnull
-  Collection<List<BinaryOption>> generateUpToNConfigs(int n);
+  Collection<Set<BinaryOption>> generateUpToNConfigs(int n);
 
   /**
    * The method aims at finding a configuration which is similar to the given configuration, but
@@ -76,8 +76,8 @@ public interface VariantGenerator {
    * returned if no valid configuration exists.
    */
   @Nullable
-  Tuple<List<BinaryOption>, List<BinaryOption>> generateConfigWithoutOption(
-      Collection<BinaryOption> config, BinaryOption optionToRemove);
+  Tuple<Set<BinaryOption>, Set<BinaryOption>> generateConfigWithoutOption(
+      Set<BinaryOption> config, BinaryOption optionToRemove);
 
   /**
    * Generates all valid combinations of all configuration options in the variability model.
@@ -88,7 +88,7 @@ public interface VariantGenerator {
    * @return Returns a list of binary options.
    */
   @Nonnull
-  Collection<List<BinaryOption>> generateAllVariants(List<BinaryOption> optionsToConsider);
+  Collection<Set<BinaryOption>> generateAllVariants(Set<BinaryOption> optionsToConsider);
 
   /**
    * This method returns a configuration with the given number of selected features.
@@ -100,9 +100,9 @@ public interface VariantGenerator {
    * @return A list of binary options.
    */
   @Nullable
-  List<BinaryOption> generateConfig(int numberSelectedFeatures,
-                                    Map<List<BinaryOption>, Integer> featureWeight,
-                                    Collection<List<BinaryOption>> excludedConfigs);
+  Set<BinaryOption> generateConfig(int numberSelectedFeatures,
+                                   Map<Set<BinaryOption>, Integer> featureWeight,
+                                   Collection<Set<BinaryOption>> excludedConfigs);
 
 }
 

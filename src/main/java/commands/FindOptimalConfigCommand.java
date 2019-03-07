@@ -5,6 +5,7 @@ import static utilities.ParsingUtils.decodedBinaryOptions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -32,11 +33,11 @@ public final class FindOptimalConfigCommand extends ShellCommand {
     }
     VariabilityModel vm = context.getVariabilityModel();
     String optionsString = tokens[1];
-    List<BinaryOption> config = decodedBinaryOptions(optionsString, vm);
-    List<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptyList()
+    Set<BinaryOption> config = decodedBinaryOptions(optionsString, vm);
+    Set<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptySet()
                                                            : decodedBinaryOptions(tokens[2], vm);
 
-    List<BinaryOption> optimalConfig =
+    Set<BinaryOption> optimalConfig =
         context.getVariantGenerator().findOptimalConfig(minimize, config, unwantedOptions);
     return optimalConfig == null ? "none" : encodedBinaryOptions(optimalConfig);
   }

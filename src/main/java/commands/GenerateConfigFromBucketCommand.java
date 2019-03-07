@@ -5,8 +5,8 @@ import static utilities.ParsingUtils.encodedBinaryOptions;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -24,13 +24,13 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
   }
 
   @Nonnull
-  private static Map<List<BinaryOption>, Integer> decodeFeatureWeightMap(String str,
-                                                                         VariabilityModel vm) {
+  private static Map<Set<BinaryOption>, Integer> decodeFeatureWeightMap(String str,
+                                                                        VariabilityModel vm) {
     String[] entryTokens = str.split(";");
-    Map<List<BinaryOption>, Integer> map = new HashMap<>(entryTokens.length);
+    Map<Set<BinaryOption>, Integer> map = new HashMap<>(entryTokens.length);
     for (String entryToken : entryTokens) {
       String[] tokens = entryToken.split("=");
-      List<BinaryOption> config = ParsingUtils.decodedBinaryOptions(tokens[0], vm);
+      Set<BinaryOption> config = ParsingUtils.decodedBinaryOptions(tokens[0], vm);
       int weight = Integer.parseInt(tokens[1]);
       map.put(config, weight);
     }
@@ -50,15 +50,15 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
     } catch (NumberFormatException e) {
       return error("invalid number");
     }
-    Map<List<BinaryOption>, Integer> featureWeight;
+    Map<Set<BinaryOption>, Integer> featureWeight;
     VariabilityModel vm = context.getVariabilityModel();
     featureWeight = tokens.length < 2 ? Collections.emptyMap()
                                       : decodeFeatureWeightMap(tokens[1], vm);
-    Collection<List<BinaryOption>> excludedConfigs = context.getBucket(selectedOptionsCount);
+    Collection<Set<BinaryOption>> excludedConfigs = context.getBucket(selectedOptionsCount);
     VariantGenerator variantGenerator = context.getVariantGenerator();
-    List<BinaryOption> config = variantGenerator.generateConfig(selectedOptionsCount,
-                                                                featureWeight,
-                                                                excludedConfigs);
+    Set<BinaryOption> config = variantGenerator.generateConfig(selectedOptionsCount,
+                                                               featureWeight,
+                                                               excludedConfigs);
     if (config == null) {
       return "none";
     } else {

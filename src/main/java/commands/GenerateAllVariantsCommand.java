@@ -5,6 +5,7 @@ import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -27,10 +28,10 @@ public final class GenerateAllVariantsCommand extends ShellCommand {
       return error("no options specified");
     }
     VariabilityModel vm = context.getVariabilityModel();
-    List<BinaryOption> optionsToConsider = decodedBinaryOptions(tokens[0], vm);
+    Set<BinaryOption> optionsToConsider = decodedBinaryOptions(tokens[0], vm);
 
-    Collection<List<BinaryOption>> allVariants = context.getVariantGenerator()
-                                                        .generateAllVariants(optionsToConsider);
+    Collection<Set<BinaryOption>> allVariants = context.getVariantGenerator()
+                                                       .generateAllVariants(optionsToConsider);
     return encodedBinaryOptionsCollection(allVariants);
   }
 }
