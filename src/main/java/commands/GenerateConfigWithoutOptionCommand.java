@@ -1,6 +1,7 @@
 package commands;
 
-import static utilities.ParsingUtils.binaryOptionsFromString;
+import static utilities.ParsingUtils.decodedBinaryOptions;
+import static utilities.ParsingUtils.encodedBinaryOptions;
 
 import java.util.List;
 
@@ -9,7 +10,6 @@ import javax.annotation.Nonnull;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
 import utilities.GlobalContext;
-import utilities.ParsingUtils;
 import utilities.ShellCommand;
 import utilities.Tuple;
 
@@ -27,7 +27,7 @@ public final class GenerateConfigWithoutOptionCommand extends ShellCommand {
       return error("no configuration specified");
     }
     VariabilityModel vm = context.getVariabilityModel();
-    List<BinaryOption> config = binaryOptionsFromString(tokens[0], vm);
+    List<BinaryOption> config = decodedBinaryOptions(tokens[0], vm);
     if (tokens.length < 2) {
       return error("no option specified");
     }
@@ -41,8 +41,8 @@ public final class GenerateConfigWithoutOptionCommand extends ShellCommand {
       List<BinaryOption> newConfig = result.getFirst();
       List<BinaryOption> removedOptions = result.getSecond();
       return String.format("%s %s",
-                           ParsingUtils.binaryOptionsToString(newConfig),
-                           ParsingUtils.binaryOptionsToString(removedOptions));
+                           encodedBinaryOptions(newConfig),
+                           encodedBinaryOptions(removedOptions));
     }
   }
 }

@@ -1,6 +1,6 @@
 package commands;
 
-import static utilities.ParsingUtils.binaryOptionsFromString;
+import static utilities.ParsingUtils.decodedBinaryOptions;
 
 import java.util.List;
 
@@ -37,8 +37,8 @@ public final class CheckSatisfiabilityCommand extends ShellCommand {
     if (tokens.length < 2) {
       return error("no configuration specified");
     }
-    List<BinaryOption> options = binaryOptionsFromString(tokens[1], context.getVariabilityModel());
-    boolean valid = context.getSatisfiabilityChecker().isValid(options, isPartialConfiguration);
+    List<BinaryOption> config = decodedBinaryOptions(tokens[1], context.getVariabilityModel());
+    boolean valid = context.getSatisfiabilityChecker().isValid(config, isPartialConfiguration);
     return String.valueOf(valid);
   }
 }

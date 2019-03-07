@@ -1,8 +1,10 @@
 package commands;
 
-import java.util.ArrayList;
+import static utilities.ParsingUtils.encodedBinaryOptions;
+
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,20 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
   }
 
   @Nonnull
+  private static Map<List<BinaryOption>, Integer> decodeFeatureWeightMap(String str,
+                                                                         VariabilityModel vm) {
+    String[] entryTokens = str.split(";");
+    Map<List<BinaryOption>, Integer> map = new HashMap<>(entryTokens.length);
+    for (String entryToken : entryTokens) {
+      String[] tokens = entryToken.split("=");
+      List<BinaryOption> config = ParsingUtils.decodedBinaryOptions(tokens[0], vm);
+      int weight = Integer.parseInt(tokens[1]);
+      map.put(config, weight);
+    }
+    return map;
+  }
+
+  @Nonnull
   @Override
   public String execute(String argsString) {
     String[] tokens = argsString.split(" ");
@@ -37,7 +53,7 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
     Map<List<BinaryOption>, Integer> featureWeight;
     VariabilityModel vm = context.getVariabilityModel();
     featureWeight = tokens.length < 2 ? Collections.emptyMap()
-                                      : ParsingUtils.featureWeightFromString(tokens[1], vm);
+                                      : decodeFeatureWeightMap(tokens[1], vm);
     Collection<List<BinaryOption>> excludedConfigs = context.getBucket(selectedOptionsCount);
     VariantGenerator variantGenerator = context.getVariantGenerator();
     List<BinaryOption> config = variantGenerator.generateConfig(selectedOptionsCount,
@@ -47,7 +63,7 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
       return "none";
     } else {
       excludedConfigs.add(config);
-      return ParsingUtils.binaryOptionsToString(config);
+      return encodedBinaryOptions(config);
     }
   }
 }

@@ -1,12 +1,13 @@
 package commands;
 
+import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
+
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
 import utilities.GlobalContext;
-import utilities.ParsingUtils;
 import utilities.ShellCommand;
 
 public final class GenerateUpToNConfigsCommand extends ShellCommand {
@@ -25,6 +26,6 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
       return error("invalid number");
     }
     List<List<BinaryOption>> configs = context.getVariantGenerator().generateUpToNConfigs(count);
-    return ParsingUtils.binaryConfigsToString(configs);
+    return encodedBinaryOptionsCollection(configs);
   }
 }

@@ -1,6 +1,7 @@
 package commands;
 
-import static utilities.ParsingUtils.binaryOptionsFromString;
+import static utilities.ParsingUtils.encodedBinaryOptions;
+import static utilities.ParsingUtils.decodedBinaryOptions;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +11,6 @@ import javax.annotation.Nonnull;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
 import utilities.GlobalContext;
-import utilities.ParsingUtils;
 import utilities.ShellCommand;
 
 public final class FindOptimalConfigCommand extends ShellCommand {
@@ -32,12 +32,12 @@ public final class FindOptimalConfigCommand extends ShellCommand {
     }
     VariabilityModel vm = context.getVariabilityModel();
     String optionsString = tokens[1];
-    List<BinaryOption> config = binaryOptionsFromString(optionsString, vm);
+    List<BinaryOption> config = decodedBinaryOptions(optionsString, vm);
     List<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptyList()
-                                                           : binaryOptionsFromString(tokens[2], vm);
+                                                           : decodedBinaryOptions(tokens[2], vm);
 
     List<BinaryOption> optimalConfig =
         context.getVariantGenerator().findOptimalConfig(minimize, config, unwantedOptions);
-    return optimalConfig == null ? "none" : ParsingUtils.binaryOptionsToString(optimalConfig);
+    return optimalConfig == null ? "none" : encodedBinaryOptions(optimalConfig);
   }
 }

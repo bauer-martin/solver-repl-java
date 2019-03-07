@@ -1,6 +1,7 @@
 package commands;
 
-import static utilities.ParsingUtils.binaryOptionsFromString;
+import static utilities.ParsingUtils.decodedBinaryOptions;
+import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +11,6 @@ import javax.annotation.Nonnull;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
 import utilities.GlobalContext;
-import utilities.ParsingUtils;
 import utilities.ShellCommand;
 
 public final class GenerateAllVariantsCommand extends ShellCommand {
@@ -27,10 +27,10 @@ public final class GenerateAllVariantsCommand extends ShellCommand {
       return error("no options specified");
     }
     VariabilityModel vm = context.getVariabilityModel();
-    List<BinaryOption> optionsToConsider = binaryOptionsFromString(tokens[0], vm);
+    List<BinaryOption> optionsToConsider = decodedBinaryOptions(tokens[0], vm);
 
     Collection<List<BinaryOption>> allVariants = context.getVariantGenerator()
                                                         .generateAllVariants(optionsToConsider);
-    return ParsingUtils.binaryConfigsToString(allVariants);
+    return encodedBinaryOptionsCollection(allVariants);
   }
 }
