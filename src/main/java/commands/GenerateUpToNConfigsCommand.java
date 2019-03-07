@@ -2,6 +2,7 @@ package commands;
 
 import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -25,7 +26,8 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
     } catch (NumberFormatException e) {
       return error("invalid number");
     }
-    List<List<BinaryOption>> configs = context.getVariantGenerator().generateUpToNConfigs(count);
+    Collection<List<BinaryOption>> configs = context.getVariantGenerator()
+                                                    .generateUpToNConfigs(count);
     return encodedBinaryOptionsCollection(configs);
   }
 }

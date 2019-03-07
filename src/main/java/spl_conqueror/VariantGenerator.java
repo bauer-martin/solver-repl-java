@@ -44,9 +44,9 @@ public interface VariantGenerator {
    * none)
    */
   @Nonnull
-  List<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
-                                                 Collection<BinaryOption> config,
-                                                 Collection<BinaryOption> unwantedOptions);
+  Collection<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
+                                                       Collection<BinaryOption> config,
+                                                       Collection<BinaryOption> unwantedOptions);
 
   /**
    * Generates up to n solutions of the variability model.
@@ -60,7 +60,7 @@ public interface VariantGenerator {
    * options.
    */
   @Nonnull
-  List<List<BinaryOption>> generateUpToNConfigs(int n);
+  Collection<List<BinaryOption>> generateUpToNConfigs(int n);
 
   /**
    * The method aims at finding a configuration which is similar to the given configuration, but

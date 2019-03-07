@@ -3,6 +3,7 @@ package commands;
 import static utilities.ParsingUtils.decodedBinaryOptions;
 import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public final class FindAllOptimalConfigsCommand extends ShellCommand {
     List<BinaryOption> unwantedOptions = tokens.length < 3 ? Collections.emptyList()
                                                            : decodedBinaryOptions(tokens[2], vm);
 
-    List<List<BinaryOption>> optimalConfigs =
+    Collection<List<BinaryOption>> optimalConfigs =
         context.getVariantGenerator().findAllOptimalConfigs(minimize, config, unwantedOptions);
     return encodedBinaryOptionsCollection(optimalConfigs);
   }

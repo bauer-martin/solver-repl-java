@@ -101,7 +101,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   }
 
   private void processExcludedOptionsAsCrossTreeConstraints(BinaryOption option) {
-    List<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
+    Collection<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
     for (List<ConfigurationOption> nonAlternativeOption : options) {
       BoolVar[] orVars = new BoolVar[nonAlternativeOption.size()];
       for (int i = 0; i < orVars.length; i++) {

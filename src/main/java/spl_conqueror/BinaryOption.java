@@ -96,8 +96,8 @@ public final class BinaryOption extends ConfigurationOption {
    * (i.e., cross-tree constraints)
    */
   @Nonnull
-  public List<List<ConfigurationOption>> getNonAlternativeExcludedOptions() {
-    List<List<ConfigurationOption>> result = new ArrayList<>();
+  public Collection<List<ConfigurationOption>> getNonAlternativeExcludedOptions() {
+    Collection<List<ConfigurationOption>> result = new ArrayList<>();
     for (List<ConfigurationOption> group : excludedOptions) {
       if (group.size() == 1) {
         ConfigurationOption option = group.get(0);

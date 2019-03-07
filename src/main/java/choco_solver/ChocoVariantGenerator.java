@@ -74,9 +74,9 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public List<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
-                                                        Collection<BinaryOption> config,
-                                                        Collection<BinaryOption> unwantedOptions) {
+  public Collection<List<BinaryOption>> findAllOptimalConfigs(boolean minimize,
+                                                              Collection<BinaryOption> config,
+                                                              Collection<BinaryOption> unwantedOptions) {
     Model cs = context.getConstraintSystem();
 
     // feature selection
@@ -103,7 +103,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     Solver solver = cs.getSolver();
     List<Solution> solutions = solver.findAllOptimalSolutions(selectedOptionsCountVar, !minimize);
-    List<List<BinaryOption>> result = toBinaryOptions(solutions);
+    Collection<List<BinaryOption>> result = toBinaryOptions(solutions);
 
     context.resetConstraintSystem();
     return result;
@@ -111,7 +111,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public List<List<BinaryOption>> generateUpToNConfigs(int n) {
+  public Collection<List<BinaryOption>> generateUpToNConfigs(int n) {
     Model cs = context.getConstraintSystem();
     Solver solver = cs.getSolver();
     if (n > 0) {
@@ -134,7 +134,7 @@ class ChocoVariantGenerator implements VariantGenerator {
   }
 
   @Nonnull
-  private List<List<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
+  private Collection<List<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
     return solutions.stream()
                     .map(this::toBinaryOptions)
                     .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));

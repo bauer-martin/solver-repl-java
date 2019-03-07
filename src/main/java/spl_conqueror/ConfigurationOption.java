@@ -4,6 +4,7 @@ import org.dom4j.Element;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -36,16 +37,16 @@ public abstract class ConfigurationOption implements Comparable<ConfigurationOpt
   private String parentName;
 
   @Nonnull
-  private final List<List<String>> impliedOptionsNames;
+  private final Collection<List<String>> impliedOptionsNames;
 
   @Nonnull
-  private final List<List<String>> excludedOptionsNames;
+  private final Collection<List<String>> excludedOptionsNames;
 
   @Nonnull
-  protected List<List<ConfigurationOption>> impliedOptions;
+  protected Collection<List<ConfigurationOption>> impliedOptions;
 
   @Nonnull
-  protected List<List<ConfigurationOption>> excludedOptions;
+  protected Collection<List<ConfigurationOption>> excludedOptions;
 
   @Nullable
   protected ConfigurationOption parent;
@@ -153,7 +154,7 @@ public abstract class ConfigurationOption implements Comparable<ConfigurationOpt
    * List, in which the current option implies one and/or a combination of other options.
    */
   @Nonnull
-  public List<List<ConfigurationOption>> getImpliedOptions() {
+  public Collection<List<ConfigurationOption>> getImpliedOptions() {
     return impliedOptions;
   }
 
@@ -166,7 +167,7 @@ public abstract class ConfigurationOption implements Comparable<ConfigurationOpt
    * other options.
    */
   @Nonnull
-  public List<List<ConfigurationOption>> getExcludedOptions() {
+  public Collection<List<ConfigurationOption>> getExcludedOptions() {
     return excludedOptions;
   }
 
