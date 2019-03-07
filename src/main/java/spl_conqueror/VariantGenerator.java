@@ -93,14 +93,14 @@ public interface VariantGenerator {
   /**
    * This method returns a configuration with the given number of selected features.
    *
-   * @param numberSelectedFeatures The number of features that should be selected.
-   * @param featureWeight          The weight of certain feature combinations.
-   * @param excludedConfigs        The configurations that should be ignored.
+   * @param selectedOptionsCount The number of features that should be selected.
+   * @param featureWeight        The weight of certain feature combinations.
+   * @param excludedConfigs      The configurations that should be ignored.
    *
    * @return A list of binary options.
    */
   @Nullable
-  Set<BinaryOption> generateConfig(int numberSelectedFeatures,
+  Set<BinaryOption> generateConfig(int selectedOptionsCount,
                                    Map<Set<BinaryOption>, Integer> featureWeight,
                                    Collection<Set<BinaryOption>> excludedConfigs);
 
