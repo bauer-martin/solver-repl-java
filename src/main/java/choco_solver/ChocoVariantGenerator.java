@@ -207,7 +207,9 @@ class ChocoVariantGenerator implements VariantGenerator {
           }
         }
       }
-      allVariants.add(config);
+      if (!config.isEmpty()) {
+        allVariants.add(config);
+      }
     }
     return allVariants;
   }
