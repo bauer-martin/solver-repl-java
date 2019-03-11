@@ -55,7 +55,8 @@ public final class Main {
     shell.registerCommand(new GenerateConfigWithoutOptionCommand(context),
                           "generate-config-without-option");
     shell.registerCommand(new GenerateAllVariantsCommand(context), "generate-all-variants");
-    shell.registerCommand(new GenerateConfigFromBucketCommand(context), "generate-config-from-bucket");
+    shell.registerCommand(new GenerateConfigFromBucketCommand(context),
+                          "generate-config-from-bucket");
     shell.registerCommand(new ClearBucketCacheCommand(context), "clear-bucket-cache");
     shell.execute();
   }

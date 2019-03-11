@@ -2,10 +2,8 @@ package choco_solver;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.Variable;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Set;
 
