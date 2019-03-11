@@ -78,7 +78,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
     // All other options are assigned 1 as weight, meaning they are not weighted at all.
     IntVar selectedOptionsCountVar = constraintSelectedOptions(
-        cs, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
+        cs, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     // find all optimal solutions
     Solver solver = cs.getSolver();
