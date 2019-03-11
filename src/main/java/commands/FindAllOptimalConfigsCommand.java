@@ -26,10 +26,11 @@ public final class FindAllOptimalConfigsCommand extends ShellCommand {
   public String execute(String argsString) {
     String[] tokens = argsString.split(" ");
     VariabilityModel vm = context.getVariabilityModel();
-    Set<BinaryOption> config = tokens.length < 1 ? Collections.emptySet()
-                                                 : decodedBinaryOptions(tokens[1], vm);
+    Set<BinaryOption> config = tokens.length < 1 || tokens[0].isEmpty()
+                               ? Collections.emptySet()
+                               : decodedBinaryOptions(tokens[0], vm);
     Set<BinaryOption> unwantedOptions = tokens.length < 2 ? Collections.emptySet()
-                                                          : decodedBinaryOptions(tokens[2], vm);
+                                                          : decodedBinaryOptions(tokens[1], vm);
 
     VariantGenerator vg = context.getVariantGenerator();
     Collection<Set<BinaryOption>> optimalConfigs = vg.findAllOptimalConfigs(config,
