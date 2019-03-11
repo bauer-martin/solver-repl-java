@@ -59,7 +59,12 @@ public final class GlobalContext {
   }
 
   public void setSolverFactory(SolverFactory solverFactory) {
-    this.solverFactory = solverFactory;
+    if (this.solverFactory == null
+        || !this.solverFactory.getClass().equals(solverFactory.getClass())) {
+      this.solverFactory = solverFactory;
+      satisfiabilityChecker = null;
+      variantGenerator = null;
+    }
   }
 
   @Nonnull
