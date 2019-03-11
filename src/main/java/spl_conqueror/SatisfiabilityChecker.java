@@ -1,6 +1,6 @@
 package spl_conqueror;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface SatisfiabilityChecker {
 
@@ -15,5 +15,5 @@ public interface SatisfiabilityChecker {
    *
    * @return True if it is a valid selection w.r.t. the variability model, false otherwise.
    */
-  boolean isValid(Collection<BinaryOption> selectedOptions, boolean isPartialConfiguration);
+  boolean isValid(Set<BinaryOption> selectedOptions, boolean isPartialConfiguration);
 }

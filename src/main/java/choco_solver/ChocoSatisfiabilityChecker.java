@@ -6,8 +6,8 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.Variable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +25,7 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
   }
 
   @Override
-  public boolean isValid(Collection<BinaryOption> selectedOptions, boolean isPartialConfiguration) {
+  public boolean isValid(Set<BinaryOption> selectedOptions, boolean isPartialConfiguration) {
     // get access to the constraint system
     Model cs = context.getConstraintSystem();
 

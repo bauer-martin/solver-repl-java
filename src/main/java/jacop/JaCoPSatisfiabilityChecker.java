@@ -10,8 +10,8 @@ import org.jacop.search.InputOrderSelect;
 import org.jacop.search.Search;
 import org.jacop.search.SelectChoicePoint;
 
-import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
   }
 
   @Override
-  public boolean isValid(Collection<BinaryOption> selectedOptions, boolean isPartialConfiguration) {
+  public boolean isValid(Set<BinaryOption> selectedOptions, boolean isPartialConfiguration) {
     Store store = context.getStore();
     int baseLevel = store.level;
     store.setLevel(baseLevel + 1);
