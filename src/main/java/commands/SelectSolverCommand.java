@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import choco_solver.ChocoSolverFactory;
+import jacop.JaCoPSolverFactory;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
@@ -34,18 +35,24 @@ public final class SelectSolverCommand extends ShellCommand {
       case CHOCO:
         context.setSolverFactory(new ChocoSolverFactory(context.getVariabilityModel()));
         break;
+      case JACOP:
+        context.setSolverFactory(new JaCoPSolverFactory(context.getVariabilityModel()));
+        break;
     }
     return DEFAULT_SUCCESS_RESPONSE;
   }
 
   private enum SolverType {
-    CHOCO;
+    CHOCO,
+    JACOP;
 
     @Nonnull
     String getName() {
       switch (this) {
         case CHOCO:
           return "choco";
+        case JACOP:
+          return "jacop";
         default:
           throw new IllegalStateException("missing enum case");
       }
