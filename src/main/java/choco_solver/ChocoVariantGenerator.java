@@ -46,7 +46,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     Model cs = context.getConstraintSystem();
 
     // feature selection
-    constraintSelectedOptions(cs, config);
+    constraintSelectedOptions(config);
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
@@ -72,7 +72,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     Model cs = context.getConstraintSystem();
 
     // feature selection
-    constraintSelectedOptions(cs, config);
+    constraintSelectedOptions(config);
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
@@ -116,7 +116,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     Model cs = context.getConstraintSystem();
 
     // forbid the selection of this configuration option
-    cs.boolVar(true).imp(context.getVariable(optionToRemove).asBoolVar().not()).post();
+    context.getVariable(optionToRemove).asBoolVar().eq(0).post();
 
     // Since we are minimizing, we use a large negative value for options contained in the original
     // configuration to increase chances that the option gets selected again. A positive value
@@ -261,10 +261,10 @@ class ChocoVariantGenerator implements VariantGenerator {
   }
 
   @SuppressWarnings("TypeMayBeWeakened")
-  private void constraintSelectedOptions(Model cs, Set<BinaryOption> config) {
+  private void constraintSelectedOptions(Set<BinaryOption> config) {
     for (BinaryOption option : config) {
       Variable variable = context.getVariable(option);
-      cs.boolVar(true).imp(variable.asBoolVar()).post();
+      variable.asBoolVar().eq(1).post();
     }
   }
 

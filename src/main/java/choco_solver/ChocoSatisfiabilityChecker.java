@@ -35,9 +35,9 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
       Variable variable = entry.getValue();
 
       if (selectedOptions.contains(option)) {
-        cs.boolVar(true).imp(variable.asBoolVar()).post();
+        variable.asBoolVar().eq(1).post();
       } else if (!isPartialConfiguration) {
-        cs.boolVar(true).imp(variable.asBoolVar().not()).post();
+        variable.asBoolVar().eq(0).post();
       }
     }
 

@@ -71,7 +71,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   private void addVariableConstraints(BinaryOption option) {
     BoolVar variable = optionToVar.get(option).asBoolVar();
     if (option.isRoot()) {
-      model.boolVar(true).imp(variable).post();
+      variable.eq(1).post();
     } else if (option.getParent() != null) {
       BoolVar parentVar = optionToVar.get(option.getParent()).asBoolVar();
       variable.imp(parentVar).post();
