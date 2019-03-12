@@ -129,7 +129,7 @@ public final class JaCoPBucketSession implements BucketSession {
       if (store.level != baseLevel + 1) {
         throw new IllegalStateException("investigation needed");
       }
-      store.removeLevel(baseLevel);
+      store.removeLevel(store.level);
 
       // stop if solution has been found
       if (solution != null) {
