@@ -18,10 +18,8 @@ import org.jacop.search.IndomainRandom;
 import org.jacop.search.InputOrderSelect;
 import org.jacop.search.Search;
 import org.jacop.search.SelectChoicePoint;
-import org.jacop.search.SimpleSolutionListener;
 import org.jacop.search.SolutionListener;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,7 +30,6 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -319,39 +316,5 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
       }
     }
     return null;
-  }
-
-  private static final class DefaultSolutionListener extends SimpleSolutionListener<IntVar> {
-
-    DefaultSolutionListener(int solutionLimit) {
-      recordSolutions(true);
-      if (solutionLimit > 0) {
-        setSolutionLimit(solutionLimit);
-      } else {
-        searchAll(true);
-      }
-    }
-
-    @Nonnull
-    private Set<String> getSolutionAsConfig() {
-      return getSolutionAsConfig(solutionsNo());
-    }
-
-    @Nonnull
-    private Set<String> getSolutionAsConfig(int solutionNumber) {
-      Domain[] solution = getSolution(solutionNumber);
-      return IntStream.range(0, solution.length)
-                      .filter(i -> ((IntDomain) solution[i]).value() == 1)
-                      .mapToObj(i -> vars[i].id)
-                      .collect(Collectors.toSet());
-    }
-
-    @Nonnull
-    private Collection<Set<String>> getSolutionsAsConfigs() {
-      int solutionCount = solutionsNo();
-      return IntStream.rangeClosed(1, solutionCount)
-                      .mapToObj(this::getSolutionAsConfig)
-                      .collect(Collectors.toCollection(() -> new ArrayList<>(solutionCount)));
-    }
   }
 }
