@@ -38,14 +38,24 @@ public final class JaCoPBucketSession implements BucketSession {
   @Nonnull
   private final Map<Integer, Collection<Set<BinaryOption>>> buckets = new HashMap<>();
 
+  @Nonnull
+  private final ConstraintSystemContext context;
+
+  @Nullable
+  private IntVar sumVar;
+
   public JaCoPBucketSession(VariabilityModel vm) {
     this.vm = vm;
+    context = new ConstraintSystemContext(this.vm);
   }
 
   @Nullable
   @Override
   public Set<BinaryOption> generateConfig(int selectedOptionsCount,
                                           Map<Set<BinaryOption>, Integer> featureWeight) {
+    if (sumVar == null) {
+      setup();
+    }
     Collection<Set<BinaryOption>> excludedConfigs =
         buckets.computeIfAbsent(selectedOptionsCount, n -> new HashSet<>());
     Set<BinaryOption> config = generateConfig(selectedOptionsCount, featureWeight, excludedConfigs);
@@ -53,18 +63,7 @@ public final class JaCoPBucketSession implements BucketSession {
     return config;
   }
 
-  @Nullable
-  private Set<BinaryOption> generateConfig(int selectedOptionsCount,
-                                           Map<Set<BinaryOption>, Integer> featureWeight,
-                                           Collection<Set<BinaryOption>> excludedConfigs) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
-    Store store = context.getStore();
-    List<Entry<Set<BinaryOption>, Integer>> featureRanking
-        = featureWeight.entrySet()
-                       .stream()
-                       .sorted(comparing(Entry::getValue))
-                       .collect(Collectors.toList());
-
+  private void setup() {
     // there should be exactly selectedOptionsCount features selected
     BooleanVar[] allVariables = new BooleanVar[context.getVariableCount()];
     int index = 0;
@@ -72,8 +71,25 @@ public final class JaCoPBucketSession implements BucketSession {
       allVariables[index] = entry.getValue();
       index++;
     }
-    IntVar sumVar = new IntVar(store, "sum", IntDomain.MinInt, IntDomain.MaxInt);
+    Store store = context.getStore();
+    sumVar = new IntVar(store, "sum", IntDomain.MinInt, IntDomain.MaxInt);
     store.impose(new SumBool(allVariables, "==", sumVar));
+  }
+
+  @Nullable
+  private Set<BinaryOption> generateConfig(int selectedOptionsCount,
+                                           Map<Set<BinaryOption>, Integer> featureWeight,
+                                           Collection<Set<BinaryOption>> excludedConfigs) {
+    Store store = context.getStore();
+    // record current state
+    int baseLevel = store.level;
+    store.setLevel(baseLevel + 1);
+
+    List<Entry<Set<BinaryOption>, Integer>> featureRanking
+        = featureWeight.entrySet()
+                       .stream()
+                       .sorted(comparing(Entry::getValue))
+                       .collect(Collectors.toList());
     store.impose(new XeqC(sumVar, selectedOptionsCount));
 
     // excluded configurations should not be considered as a solution
@@ -89,20 +105,28 @@ public final class JaCoPBucketSession implements BucketSession {
     }
 
     // if we have a feature ranking, we can use it to approximate the optimal solution
-    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(context, featureRanking);
+    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(featureRanking);
+    Set<BinaryOption> result;
     if (approximateOptimal == null) {
       DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
       boolean hasFoundSolution = performSearch(context, solutionListener);
-      return hasFoundSolution ? solutionListener.getSolutionAsConfig()
-                              : null;
+      result = hasFoundSolution ? solutionListener.getSolutionAsConfig()
+                                : null;
     } else {
-      return approximateOptimal;
+      result = approximateOptimal;
     }
+
+    // reset constraint system
+    if (store.level != baseLevel + 1) {
+      throw new IllegalStateException("investigation needed");
+    }
+    store.removeLevel(store.level);
+
+    return result;
   }
 
   @Nullable
   private Set<BinaryOption> getSmallWeightConfig(
-      ConstraintSystemContext context,
       Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
     Store store = context.getStore();
     for (Entry<Set<BinaryOption>, Integer> entry : featureRanking) {
