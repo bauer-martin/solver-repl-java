@@ -121,6 +121,7 @@ public final class JaCoPBucketSession implements BucketSession {
       throw new IllegalStateException("investigation needed");
     }
     store.removeLevel(store.level);
+    store.setLevel(store.level - 1);
 
     return result;
   }
@@ -154,6 +155,7 @@ public final class JaCoPBucketSession implements BucketSession {
         throw new IllegalStateException("investigation needed");
       }
       store.removeLevel(store.level);
+      store.setLevel(store.level - 1);
 
       // stop if solution has been found
       if (solution != null) {

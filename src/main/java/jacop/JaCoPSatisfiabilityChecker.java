@@ -58,6 +58,7 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
 
     if (store.level == baseLevel + 1) {
       store.removeLevel(store.level);
+      store.setLevel(store.level - 1);
       return hasFoundSolution;
     } else {
       throw new IllegalStateException("investigation needed");
