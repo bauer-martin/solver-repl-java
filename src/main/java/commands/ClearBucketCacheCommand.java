@@ -14,7 +14,7 @@ public final class ClearBucketCacheCommand extends ShellCommand {
   @Nonnull
   @Override
   public String execute(String argsString) {
-    context.clearBucketCache();
+    context.setBucketSession(null);
     return DEFAULT_SUCCESS_RESPONSE;
   }
 }

@@ -1,12 +1,6 @@
 package jacop;
 
-import static java.util.Comparator.comparing;
-
-import org.jacop.constraints.And;
 import org.jacop.constraints.LinearInt;
-import org.jacop.constraints.Not;
-import org.jacop.constraints.PrimitiveConstraint;
-import org.jacop.constraints.SumBool;
 import org.jacop.constraints.XeqC;
 import org.jacop.core.BooleanVar;
 import org.jacop.core.Domain;
@@ -23,8 +17,6 @@ import org.jacop.search.SolutionListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -35,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import spl_conqueror.BinaryOption;
+import spl_conqueror.BucketSession;
 import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
@@ -223,89 +216,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     }
   }
 
-  @Nullable
+  @Nonnull
   @Override
-  public Set<BinaryOption> generateConfig(int selectedOptionsCount,
-                                          Map<Set<BinaryOption>, Integer> featureWeight,
-                                          Collection<Set<BinaryOption>> excludedConfigs) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
-    Store store = context.getStore();
-    List<Entry<Set<BinaryOption>, Integer>> featureRanking
-        = featureWeight.entrySet()
-                       .stream()
-                       .sorted(comparing(Entry::getValue))
-                       .collect(Collectors.toList());
-
-    // there should be exactly selectedOptionsCount features selected
-    BooleanVar[] allVariables = new BooleanVar[context.getVariableCount()];
-    int index = 0;
-    for (Entry<ConfigurationOption, BooleanVar> entry : context) {
-      allVariables[index] = entry.getValue();
-      index++;
-    }
-    IntVar sumVar = new IntVar(store, "sum", IntDomain.MinInt, IntDomain.MaxInt);
-    store.impose(new SumBool(allVariables, "==", sumVar));
-    store.impose(new XeqC(sumVar, selectedOptionsCount));
-
-    // excluded configurations should not be considered as a solution
-    List<BinaryOption> allBinaryOptions = vm.getBinaryOptions();
-    for (Set<BinaryOption> excludedConfig : excludedConfigs) {
-      PrimitiveConstraint[] ands = new PrimitiveConstraint[allBinaryOptions.size()];
-      for (int i = 0; i < allBinaryOptions.size(); i++) {
-        BinaryOption option = allBinaryOptions.get(i);
-        BooleanVar variable = context.getVariable(option);
-        ands[i] = excludedConfig.contains(option) ? new XeqC(variable, 1) : new XeqC(variable, 0);
-      }
-      store.impose(new Not(new And(ands)));
-    }
-
-    // if we have a feature ranking, we can use it to approximate the optimal solution
-    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(context, featureRanking);
-    if (approximateOptimal == null) {
-      DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-      boolean hasFoundSolution = performSearch(context, solutionListener);
-      return hasFoundSolution ? solutionListener.getSolutionAsConfig() : null;
-    } else {
-      return approximateOptimal;
-    }
-  }
-
-  @Nullable
-  private Set<BinaryOption> getSmallWeightConfig(
-      ConstraintSystemContext context,
-      Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
-    Store store = context.getStore();
-    for (Entry<Set<BinaryOption>, Integer> entry : featureRanking) {
-      Set<BinaryOption> candidates = entry.getKey();
-
-      // record current state
-      int baseLevel = store.level;
-      store.setLevel(baseLevel + 1);
-
-      // force features to be selected
-      store.impose(new And(candidates.stream()
-                                     .map(option -> new XeqC(context.getVariable(option), 1))
-                                     .collect(Collectors.toList())));
-
-      // check if satisfiable
-      DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-      boolean hasFoundSolution = performSearch(context, solutionListener);
-      Set<BinaryOption> solution = null;
-      if (hasFoundSolution) {
-        solution = solutionListener.getSolutionAsConfig();
-      }
-
-      // reset constraint system
-      if (store.level != baseLevel + 1) {
-        throw new IllegalStateException("investigation needed");
-      }
-      store.removeLevel(baseLevel);
-
-      // stop if solution has been found
-      if (solution != null) {
-        return solution;
-      }
-    }
-    return null;
+  public BucketSession createBucketSession() {
+    return new JaCoPBucketSession(vm);
   }
 }

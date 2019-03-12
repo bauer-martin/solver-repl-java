@@ -1,24 +1,15 @@
 package utilities;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import spl_conqueror.BinaryOption;
+import spl_conqueror.BucketSession;
 import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFactory;
 import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
 
 public final class GlobalContext {
-
-  @Nonnull
-  private final Map<Integer, Collection<Set<BinaryOption>>> buckets = new HashMap<>();
 
   @Nullable
   private VariabilityModel variabilityModel;
@@ -31,6 +22,9 @@ public final class GlobalContext {
 
   @Nullable
   private VariantGenerator variantGenerator;
+
+  @Nullable
+  private BucketSession bucketSession;
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
@@ -82,12 +76,12 @@ public final class GlobalContext {
     return variantGenerator;
   }
 
-  @Nonnull
-  public Collection<Set<BinaryOption>> getBucket(int selectedOptionCount) {
-    return buckets.computeIfAbsent(selectedOptionCount, n -> new HashSet<>());
+  @Nullable
+  public BucketSession getBucketSession() {
+    return bucketSession;
   }
 
-  public void clearBucketCache() {
-    buckets.clear();
+  public void setBucketSession(@Nullable BucketSession bucketSession) {
+    this.bucketSession = bucketSession;
   }
 }

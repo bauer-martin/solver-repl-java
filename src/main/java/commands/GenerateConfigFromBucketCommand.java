@@ -2,7 +2,6 @@ package commands;
 
 import static utilities.ParsingUtils.encodedBinaryOptions;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
+import spl_conqueror.BucketSession;
 import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
@@ -54,16 +54,13 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
     VariabilityModel vm = context.getVariabilityModel();
     featureWeight = tokens.length < 2 ? Collections.emptyMap()
                                       : decodeFeatureWeightMap(tokens[1], vm);
-    Collection<Set<BinaryOption>> excludedConfigs = context.getBucket(selectedOptionsCount);
-    VariantGenerator vg = context.getVariantGenerator();
-    Set<BinaryOption> config = vg.generateConfig(selectedOptionsCount,
-                                                 featureWeight,
-                                                 excludedConfigs);
-    if (config == null) {
-      return "none";
-    } else {
-      excludedConfigs.add(config);
-      return encodedBinaryOptions(config);
+    BucketSession bucketSession = context.getBucketSession();
+    if (bucketSession == null) {
+      VariantGenerator vg = context.getVariantGenerator();
+      bucketSession = vg.createBucketSession();
+      context.setBucketSession(bucketSession);
     }
+    Set<BinaryOption> config = bucketSession.generateConfig(selectedOptionsCount, featureWeight);
+    return config == null ? "none" : encodedBinaryOptions(config);
   }
 }
