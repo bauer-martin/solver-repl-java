@@ -10,7 +10,6 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -57,7 +56,8 @@ class ChocoVariantGenerator implements VariantGenerator {
     // find an optimal solution
     Solver solver = cs.getSolver();
     Solution optimalSolution = solver.findOptimalSolution(selectedOptionsCountVar, false);
-    Set<BinaryOption> result = optimalSolution == null ? null : toBinaryOptions(optimalSolution);
+    Set<BinaryOption> result = optimalSolution == null ? null :
+                               SolutionTranslator.toBinaryOptions(optimalSolution, context);
 
     // cleanup
     context.resetConstraintSystem();
@@ -85,7 +85,8 @@ class ChocoVariantGenerator implements VariantGenerator {
     Solver solver = cs.getSolver();
     List<Solution> optimalSolutions = solver.findAllOptimalSolutions(selectedOptionsCountVar,
                                                                      false);
-    Collection<Set<BinaryOption>> result = toBinaryOptions(optimalSolutions);
+    Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(optimalSolutions,
+                                                                              context);
 
     // cleanup
     context.resetConstraintSystem();
@@ -102,7 +103,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     Solver solver = cs.getSolver();
     List<Solution> solutions = n > 0 ? solver.findAllSolutions(new SolutionCounter(cs, n))
                                      : solver.findAllSolutions();
-    Collection<Set<BinaryOption>> result = toBinaryOptions(solutions);
+    Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(solutions, context);
 
     // cleanup
     context.resetConstraintSystem();
@@ -133,7 +134,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     if (optimalSolution == null) {
       result = null;
     } else {
-      Set<BinaryOption> optimalConfig = toBinaryOptions(optimalSolution);
+      Set<BinaryOption> optimalConfig = SolutionTranslator.toBinaryOptions(optimalSolution, context);
       // adding the options that have been removed from the original configuration
       Set<BinaryOption> removedElements
           = config.stream()
@@ -218,7 +219,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     Set<BinaryOption> result;
     if (approximateOptimal == null) {
       Solution solution = cs.getSolver().findSolution();
-      result = solution == null ? null : toBinaryOptions(solution);
+      result = solution == null ? null : SolutionTranslator.toBinaryOptions(solution, context);
     } else {
       result = approximateOptimal;
     }
@@ -255,7 +256,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
       // stop if solution has been found
       if (solution != null) {
-        return toBinaryOptions(solution);
+        return SolutionTranslator.toBinaryOptions(solution, context);
       }
     }
     return null;
@@ -284,24 +285,5 @@ class ChocoVariantGenerator implements VariantGenerator {
                                                IntVar.MAX_INT_BOUND, true);
     cs.scalar(goals, coefficients, "=", selectedOptionsCountVar).post();
     return selectedOptionsCountVar;
-  }
-
-  @Nonnull
-  private Set<BinaryOption> toBinaryOptions(Solution solution) {
-    Set<BinaryOption> config = new HashSet<>(context.getVariableCount());
-    for (Entry<ConfigurationOption, Variable> entry : context) {
-      int value = solution.getIntVal(entry.getValue().asBoolVar());
-      if (value == 1) {
-        config.add((BinaryOption) entry.getKey());
-      }
-    }
-    return config;
-  }
-
-  @Nonnull
-  private Collection<Set<BinaryOption>> toBinaryOptions(Collection<Solution> solutions) {
-    return solutions.stream()
-                    .map(this::toBinaryOptions)
-                    .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));
   }
 }

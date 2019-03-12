@@ -125,8 +125,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
 
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
     OptionalInt optimalCost = performOptimizeSearch(context, solutionListener, sumVar);
-    return optimalCost.isPresent() ? toBinaryOptions(solutionListener.getSolutionAsConfig())
-                                   : null;
+    return optimalCost.isPresent()
+           ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm)
+           : null;
   }
 
   @Nonnull
@@ -148,8 +149,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     store.impose(new XeqC(sumVar, optimalCost.getAsInt()));
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(-1);
     boolean hasFoundSolution = performSearch(context, solutionListener);
-    return hasFoundSolution ? toBinaryOptions(solutionListener.getSolutionsAsConfigs())
-                            : Collections.emptyList();
+    return hasFoundSolution
+           ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionsAsConfigs(), vm)
+           : Collections.emptyList();
   }
 
   @Nonnull
@@ -158,8 +160,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     ConstraintSystemContext context = new ConstraintSystemContext(vm);
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(n);
     boolean hasFoundSolution = performSearch(context, solutionListener);
-    return hasFoundSolution ? toBinaryOptions(solutionListener.getSolutionsAsConfigs())
-                            : Collections.emptyList();
+    return hasFoundSolution
+           ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionsAsConfigs(), vm)
+           : Collections.emptyList();
   }
 
   @Nullable
@@ -183,7 +186,8 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
     OptionalInt optimalCost = performOptimizeSearch(context, null, sumVar);
     if (optimalCost.isPresent()) {
-      Set<BinaryOption> optimalConfig = toBinaryOptions(solutionListener.getSolutionAsConfig());
+      Set<BinaryOption> optimalConfig =
+          SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm);
       // adding the options that have been removed from the original configuration
       Set<BinaryOption> removedElements
           = config.stream()
@@ -270,8 +274,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     if (approximateOptimal == null) {
       DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
       boolean hasFoundSolution = performSearch(context, solutionListener);
-      return hasFoundSolution ? toBinaryOptions(solutionListener.getSolutionAsConfig())
-                              : null;
+      return hasFoundSolution
+             ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm)
+             : null;
     } else {
       return approximateOptimal;
     }
@@ -299,7 +304,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
       boolean hasFoundSolution = performSearch(context, solutionListener);
       Set<BinaryOption> solution = null;
       if (hasFoundSolution) {
-        solution = toBinaryOptions(solutionListener.getSolutionAsConfig());
+        solution = SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm);
       }
 
       // reset constraint system
@@ -314,17 +319,6 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
       }
     }
     return null;
-  }
-
-  @Nonnull
-  @SuppressWarnings("TypeMayBeWeakened")
-  private Set<BinaryOption> toBinaryOptions(Set<String> selectedOptions) {
-    return selectedOptions.stream().map(vm::getBinaryOption).collect(Collectors.toSet());
-  }
-
-  @Nonnull
-  private Collection<Set<BinaryOption>> toBinaryOptions(Collection<Set<String>> solutions) {
-    return solutions.stream().map(this::toBinaryOptions).collect(Collectors.toList());
   }
 
   private static final class DefaultSolutionListener extends SimpleSolutionListener<IntVar> {
