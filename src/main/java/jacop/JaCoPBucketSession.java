@@ -1,5 +1,6 @@
 package jacop;
 
+import static jacop.JaCoPSearch.performSearch;
 import static java.util.Comparator.comparing;
 
 import org.jacop.constraints.And;
@@ -11,12 +12,6 @@ import org.jacop.core.BooleanVar;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
-import org.jacop.search.DepthFirstSearch;
-import org.jacop.search.IndomainRandom;
-import org.jacop.search.InputOrderSelect;
-import org.jacop.search.Search;
-import org.jacop.search.SelectChoicePoint;
-import org.jacop.search.SolutionListener;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,20 +40,6 @@ public final class JaCoPBucketSession implements BucketSession {
 
   public JaCoPBucketSession(VariabilityModel vm) {
     this.vm = vm;
-  }
-
-  private static boolean performSearch(ConstraintSystemContext context,
-                                       SolutionListener<IntVar> solutionListener) {
-    Search<IntVar> search = new DepthFirstSearch<>();
-    search.setPrintInfo(false);
-    search.setAssignSolution(false);
-    Store store = context.getStore();
-    SelectChoicePoint<IntVar> select = new InputOrderSelect<>(store,
-                                                              context.getVariables(),
-                                                              new IndomainRandom<>(0));
-    solutionListener.recordSolutions(true);
-    search.setSolutionListener(solutionListener);
-    return search.labeling(store, select);
   }
 
   @Nullable

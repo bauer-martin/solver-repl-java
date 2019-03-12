@@ -1,5 +1,8 @@
 package jacop;
 
+import static jacop.JaCoPSearch.performMinimizingSearch;
+import static jacop.JaCoPSearch.performSearch;
+
 import org.jacop.constraints.LinearInt;
 import org.jacop.constraints.XeqC;
 import org.jacop.core.BooleanVar;
@@ -7,12 +10,6 @@ import org.jacop.core.Domain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
-import org.jacop.search.DepthFirstSearch;
-import org.jacop.search.IndomainRandom;
-import org.jacop.search.InputOrderSelect;
-import org.jacop.search.Search;
-import org.jacop.search.SelectChoicePoint;
-import org.jacop.search.SolutionListener;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -69,38 +66,6 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     return sumVar;
   }
 
-  private static boolean performSearch(ConstraintSystemContext context,
-                                       SolutionListener<IntVar> solutionListener) {
-    Search<IntVar> search = new DepthFirstSearch<>();
-    search.setPrintInfo(false);
-    search.setAssignSolution(false);
-    Store store = context.getStore();
-    SelectChoicePoint<IntVar> select = new InputOrderSelect<>(store,
-                                                              context.getVariables(),
-                                                              new IndomainRandom<>(0));
-    solutionListener.recordSolutions(true);
-    search.setSolutionListener(solutionListener);
-    return search.labeling(store, select);
-  }
-
-  private static OptionalInt performOptimizeSearch(
-      ConstraintSystemContext context, @Nullable SolutionListener<IntVar> solutionListener,
-      IntVar costVar) {
-    Search<IntVar> search = new DepthFirstSearch<>();
-    search.setPrintInfo(false);
-    search.setAssignSolution(false);
-    Store store = context.getStore();
-    SelectChoicePoint<IntVar> select = new InputOrderSelect<>(store,
-                                                              context.getVariables(),
-                                                              new IndomainRandom<>(0));
-    if (solutionListener != null) {
-      solutionListener.recordSolutions(true);
-      search.setSolutionListener(solutionListener);
-    }
-    boolean hasFoundSolution = search.labeling(store, select, costVar);
-    return hasFoundSolution ? OptionalInt.of(search.getCostValue()) : OptionalInt.empty();
-  }
-
   @Nullable
   @Override
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
@@ -114,7 +79,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-    OptionalInt optimalCost = performOptimizeSearch(context, solutionListener, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, solutionListener, sumVar);
     return optimalCost.isPresent() ? solutionListener.getSolutionAsConfig() : null;
   }
 
@@ -131,7 +96,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     IntVar sumVar = constraintSelectedOptions(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
-    OptionalInt optimalCost = performOptimizeSearch(context, null, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, null, sumVar);
     assert optimalCost.isPresent();
 
     store.impose(new XeqC(sumVar, optimalCost.getAsInt()));
@@ -168,7 +133,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
 
     // find an optimal solution
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-    OptionalInt optimalCost = performOptimizeSearch(context, null, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, null, sumVar);
     if (optimalCost.isPresent()) {
       Set<BinaryOption> optimalConfig = solutionListener.getSolutionAsConfig();
       // adding the options that have been removed from the original configuration
