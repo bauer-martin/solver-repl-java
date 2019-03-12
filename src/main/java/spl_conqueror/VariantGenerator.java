@@ -23,10 +23,11 @@ public interface VariantGenerator {
    * @return The valid configuration (or null if there is none) that satisfies the VM and the goal.
    */
   @Nullable
-  Set<BinaryOption> findOptimalConfig(Set<BinaryOption> config, Set<BinaryOption> unwantedOptions);
+  Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
+                                        Set<BinaryOption> unwantedOptions);
 
   /**
-   * Based on a given (partial) configuration, we search for all smallest (in terms of selected
+   * Based on a given (partial) configuration, we search for all largest (in terms of selected
    * options) valid configurations.
    *
    * @param config          The (partial) configuration which needs to be expanded to be valid.
@@ -38,8 +39,8 @@ public interface VariantGenerator {
    * none)
    */
   @Nonnull
-  Collection<Set<BinaryOption>> findAllOptimalConfigs(Set<BinaryOption> config,
-                                                      Set<BinaryOption> unwantedOptions);
+  Collection<Set<BinaryOption>> findAllMaximizedConfigs(Set<BinaryOption> config,
+                                                        Set<BinaryOption> unwantedOptions);
 
   /**
    * Generates up to n solutions of the variability model.

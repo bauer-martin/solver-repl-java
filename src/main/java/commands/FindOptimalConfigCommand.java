@@ -34,7 +34,7 @@ public final class FindOptimalConfigCommand extends ShellCommand {
                                                           : decodedBinaryOptions(tokens[1], vm);
 
     VariantGenerator vg = context.getVariantGenerator();
-    Set<BinaryOption> optimalConfig = vg.findOptimalConfig(config, unwantedOptions);
+    Set<BinaryOption> optimalConfig = vg.findMinimizedConfig(config, unwantedOptions);
     return optimalConfig == null ? "none" : encodedBinaryOptions(optimalConfig);
   }
 }

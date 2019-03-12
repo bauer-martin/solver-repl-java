@@ -113,8 +113,8 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
 
   @Nullable
   @Override
-  public Set<BinaryOption> findOptimalConfig(Set<BinaryOption> config,
-                                             Set<BinaryOption> unwantedOptions) {
+  public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
+                                               Set<BinaryOption> unwantedOptions) {
     ConstraintSystemContext context = new ConstraintSystemContext(vm);
 
     // feature selection
@@ -131,8 +131,8 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public Collection<Set<BinaryOption>> findAllOptimalConfigs(Set<BinaryOption> config,
-                                                             Set<BinaryOption> unwantedOptions) {
+  public Collection<Set<BinaryOption>> findAllMaximizedConfigs(Set<BinaryOption> config,
+                                                               Set<BinaryOption> unwantedOptions) {
     ConstraintSystemContext context = new ConstraintSystemContext(vm);
     Store store = context.getStore();
 

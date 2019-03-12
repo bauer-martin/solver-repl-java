@@ -40,8 +40,8 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nullable
   @Override
-  public Set<BinaryOption> findOptimalConfig(Set<BinaryOption> config,
-                                             Set<BinaryOption> unwantedOptions) {
+  public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
+                                               Set<BinaryOption> unwantedOptions) {
     // get access to the constraint system
     Model cs = context.getConstraintSystem();
 
@@ -66,8 +66,8 @@ class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
   @Override
-  public Collection<Set<BinaryOption>> findAllOptimalConfigs(Set<BinaryOption> config,
-                                                             Set<BinaryOption> unwantedOptions) {
+  public Collection<Set<BinaryOption>> findAllMaximizedConfigs(Set<BinaryOption> config,
+                                                               Set<BinaryOption> unwantedOptions) {
     // get access to the constraint system
     Model cs = context.getConstraintSystem();
 
@@ -76,7 +76,8 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
-    // All other options are assigned 1 as weight, meaning they are not weighted at all.
+    // All other options are assigned -1 as weight. Out goal is to maximize the number of
+    // selected options, i.e., the more options selected, the better/smaller the cost.
     IntVar selectedOptionsCountVar = constraintSelectedOptions(
         cs, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
