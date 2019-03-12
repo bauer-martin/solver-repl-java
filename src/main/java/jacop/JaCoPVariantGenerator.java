@@ -120,11 +120,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     IntVar sumVar = constraintSelectedOptions(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
-    DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
+    DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
     OptionalInt optimalCost = performOptimizeSearch(context, solutionListener, sumVar);
-    return optimalCost.isPresent()
-           ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm)
-           : null;
+    return optimalCost.isPresent() ? solutionListener.getSolutionAsConfig() : null;
   }
 
   @Nonnull
@@ -144,22 +142,18 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     assert optimalCost.isPresent();
 
     store.impose(new XeqC(sumVar, optimalCost.getAsInt()));
-    DefaultSolutionListener solutionListener = new DefaultSolutionListener(-1);
+    DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, -1);
     boolean hasFoundSolution = performSearch(context, solutionListener);
-    return hasFoundSolution
-           ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionsAsConfigs(), vm)
-           : Collections.emptyList();
+    return hasFoundSolution ? solutionListener.getSolutionsAsConfigs() : Collections.emptyList();
   }
 
   @Nonnull
   @Override
   public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
     ConstraintSystemContext context = new ConstraintSystemContext(vm);
-    DefaultSolutionListener solutionListener = new DefaultSolutionListener(n);
+    DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, n);
     boolean hasFoundSolution = performSearch(context, solutionListener);
-    return hasFoundSolution
-           ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionsAsConfigs(), vm)
-           : Collections.emptyList();
+    return hasFoundSolution ? solutionListener.getSolutionsAsConfigs() : Collections.emptyList();
   }
 
   @Nullable
@@ -180,11 +174,10 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
         context, option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
-    DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
+    DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
     OptionalInt optimalCost = performOptimizeSearch(context, null, sumVar);
     if (optimalCost.isPresent()) {
-      Set<BinaryOption> optimalConfig =
-          SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm);
+      Set<BinaryOption> optimalConfig = solutionListener.getSolutionAsConfig();
       // adding the options that have been removed from the original configuration
       Set<BinaryOption> removedElements
           = config.stream()
@@ -201,7 +194,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   public Collection<Set<BinaryOption>> generateAllVariants(Set<BinaryOption> optionsToConsider) {
     ConstraintSystemContext context = new ConstraintSystemContext(vm);
     // find all solutions
-    DefaultSolutionListener solutionListener = new DefaultSolutionListener(-1);
+    DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, -1);
     boolean hasFoundSolution = performSearch(context, solutionListener);
     if (hasFoundSolution) {
       Collection<Set<BinaryOption>> allVariants = new HashSet<>();
@@ -269,11 +262,9 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     // if we have a feature ranking, we can use it to approximate the optimal solution
     Set<BinaryOption> approximateOptimal = getSmallWeightConfig(context, featureRanking);
     if (approximateOptimal == null) {
-      DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
+      DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
       boolean hasFoundSolution = performSearch(context, solutionListener);
-      return hasFoundSolution
-             ? SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm)
-             : null;
+      return hasFoundSolution ? solutionListener.getSolutionAsConfig() : null;
     } else {
       return approximateOptimal;
     }
@@ -297,11 +288,11 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
                                      .collect(Collectors.toList())));
 
       // check if satisfiable
-      DefaultSolutionListener solutionListener = new DefaultSolutionListener(1);
+      DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
       boolean hasFoundSolution = performSearch(context, solutionListener);
       Set<BinaryOption> solution = null;
       if (hasFoundSolution) {
-        solution = SolutionTranslator.toBinaryOptions(solutionListener.getSolutionAsConfig(), vm);
+        solution = solutionListener.getSolutionAsConfig();
       }
 
       // reset constraint system

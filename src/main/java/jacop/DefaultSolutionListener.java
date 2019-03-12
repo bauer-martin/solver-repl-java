@@ -13,9 +13,16 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
+import spl_conqueror.BinaryOption;
+import spl_conqueror.VariabilityModel;
+
 final class DefaultSolutionListener extends SimpleSolutionListener<IntVar> {
 
-  DefaultSolutionListener(int solutionLimit) {
+  @Nonnull
+  private final VariabilityModel vm;
+
+  DefaultSolutionListener(VariabilityModel vm, int solutionLimit) {
+    this.vm = vm;
     recordSolutions(true);
     if (solutionLimit > 0) {
       setSolutionLimit(solutionLimit);
@@ -25,21 +32,21 @@ final class DefaultSolutionListener extends SimpleSolutionListener<IntVar> {
   }
 
   @Nonnull
-  Set<String> getSolutionAsConfig() {
+  Set<BinaryOption> getSolutionAsConfig() {
     return getSolutionAsConfig(solutionsNo());
   }
 
   @Nonnull
-  private Set<String> getSolutionAsConfig(int solutionNumber) {
+  private Set<BinaryOption> getSolutionAsConfig(int solutionNumber) {
     Domain[] solution = getSolution(solutionNumber);
     return IntStream.range(0, solution.length)
                     .filter(i -> ((IntDomain) solution[i]).value() == 1)
-                    .mapToObj(i -> vars[i].id)
+                    .mapToObj(i -> vm.getBinaryOption(vars[i].id))
                     .collect(Collectors.toSet());
   }
 
   @Nonnull
-  Collection<Set<String>> getSolutionsAsConfigs() {
+  Collection<Set<BinaryOption>> getSolutionsAsConfigs() {
     int solutionCount = solutionsNo();
     return IntStream.rangeClosed(1, solutionCount)
                     .mapToObj(this::getSolutionAsConfig)
