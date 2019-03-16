@@ -1,8 +1,9 @@
 package commands;
 
 import static utilities.ParsingUtils.decodedBinaryOptions;
-import static utilities.ParsingUtils.encodedBinaryOptions;
+import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -14,9 +15,9 @@ import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
-public final class FindOptimalConfigCommand extends ShellCommand {
+public final class FindAllMaximizedConfigsCommand extends ShellCommand {
 
-  public FindOptimalConfigCommand(GlobalContext context) {
+  public FindAllMaximizedConfigsCommand(GlobalContext context) {
     super(context);
   }
 
@@ -24,17 +25,16 @@ public final class FindOptimalConfigCommand extends ShellCommand {
   @Override
   public String execute(String argsString) {
     String[] tokens = argsString.split(" ");
-    if (tokens.length < 1 || tokens[0].length() < 1) {
-      return error("no configuration specified");
-    }
     VariabilityModel vm = context.getVariabilityModel();
-    String optionsString = tokens[0];
-    Set<BinaryOption> config = decodedBinaryOptions(optionsString, vm);
+    Set<BinaryOption> config = tokens.length < 1 || tokens[0].isEmpty()
+                               ? Collections.emptySet()
+                               : decodedBinaryOptions(tokens[0], vm);
     Set<BinaryOption> unwantedOptions = tokens.length < 2 ? Collections.emptySet()
                                                           : decodedBinaryOptions(tokens[1], vm);
 
     VariantGenerator vg = context.getVariantGenerator();
-    Set<BinaryOption> optimalConfig = vg.findMinimizedConfig(config, unwantedOptions);
-    return optimalConfig == null ? "none" : encodedBinaryOptions(optimalConfig);
+    Collection<Set<BinaryOption>> optimalConfigs = vg.findAllMaximizedConfigs(config,
+                                                                              unwantedOptions);
+    return encodedBinaryOptionsCollection(optimalConfigs);
   }
 }

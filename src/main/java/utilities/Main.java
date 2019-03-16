@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 
 import commands.CheckSatisfiabilityCommand;
 import commands.ClearBucketCacheCommand;
-import commands.FindAllOptimalConfigsCommand;
-import commands.FindOptimalConfigCommand;
+import commands.FindAllMaximizedConfigsCommand;
+import commands.FindMinimizedConfigCommand;
 import commands.GenerateAllVariantsCommand;
 import commands.GenerateConfigFromBucketCommand;
 import commands.GenerateConfigWithoutOptionCommand;
@@ -49,8 +49,9 @@ public final class Main {
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
     shell.registerCommand(new SelectSolverCommand(context), "select-solver");
     shell.registerCommand(new CheckSatisfiabilityCommand(context), "check-sat");
-    shell.registerCommand(new FindOptimalConfigCommand(context), "find-optimal-config");
-    shell.registerCommand(new FindAllOptimalConfigsCommand(context), "find-all-optimal-configs");
+    shell.registerCommand(new FindMinimizedConfigCommand(context), "find-minimized-config");
+    shell.registerCommand(new FindAllMaximizedConfigsCommand(context),
+                          "find-all-maximized-configs");
     shell.registerCommand(new GenerateUpToNConfigsCommand(context), "generate-up-to");
     shell.registerCommand(new GenerateConfigWithoutOptionCommand(context),
                           "generate-config-without-option");
