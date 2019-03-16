@@ -1,11 +1,15 @@
 package commands;
 
+import static java.util.Comparator.comparing;
 import static utilities.ParsingUtils.encodedBinaryOptions;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -60,7 +64,13 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
       bucketSession = vg.createBucketSession();
       context.setBucketSession(bucketSession);
     }
-    Set<BinaryOption> config = bucketSession.generateConfig(selectedOptionsCount, featureWeight);
+    List<Set<BinaryOption>> featureRanking
+        = featureWeight.entrySet()
+                       .stream()
+                       .sorted(comparing(Entry::getValue))
+                       .map(Entry::getKey)
+                       .collect(Collectors.toList());
+    Set<BinaryOption> config = bucketSession.generateConfig(selectedOptionsCount, featureRanking);
     return config == null ? "none" : encodedBinaryOptions(config);
   }
 }

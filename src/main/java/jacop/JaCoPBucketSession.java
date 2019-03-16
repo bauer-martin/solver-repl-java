@@ -1,7 +1,6 @@
 package jacop;
 
 import static jacop.JaCoPSearch.performSearch;
-import static java.util.Comparator.comparing;
 
 import org.jacop.constraints.And;
 import org.jacop.constraints.Not;
@@ -52,13 +51,15 @@ public final class JaCoPBucketSession implements BucketSession {
   @Nullable
   @Override
   public Set<BinaryOption> generateConfig(int selectedOptionsCount,
-                                          Map<Set<BinaryOption>, Integer> featureWeight) {
+                                          List<Set<BinaryOption>> featureRanking) {
     if (sumVar == null) {
       setup();
     }
     Collection<Set<BinaryOption>> excludedConfigs =
         buckets.computeIfAbsent(selectedOptionsCount, n -> new HashSet<>());
-    Set<BinaryOption> config = generateConfig(selectedOptionsCount, featureWeight, excludedConfigs);
+    Set<BinaryOption> config = generateConfig(selectedOptionsCount,
+                                              featureRanking,
+                                              excludedConfigs);
     excludedConfigs.add(config);
     return config;
   }
@@ -78,18 +79,13 @@ public final class JaCoPBucketSession implements BucketSession {
 
   @Nullable
   private Set<BinaryOption> generateConfig(int selectedOptionsCount,
-                                           Map<Set<BinaryOption>, Integer> featureWeight,
-                                           Collection<Set<BinaryOption>> excludedConfigs) {
+                                           Iterable<Set<BinaryOption>> featureRanking,
+                                           Iterable<Set<BinaryOption>> excludedConfigs) {
     Store store = context.getStore();
     // record current state
     int baseLevel = store.level;
     store.setLevel(baseLevel + 1);
 
-    List<Entry<Set<BinaryOption>, Integer>> featureRanking
-        = featureWeight.entrySet()
-                       .stream()
-                       .sorted(comparing(Entry::getValue))
-                       .collect(Collectors.toList());
     store.impose(new XeqC(sumVar, selectedOptionsCount));
 
     // excluded configurations should not be considered as a solution
@@ -127,11 +123,9 @@ public final class JaCoPBucketSession implements BucketSession {
   }
 
   @Nullable
-  private Set<BinaryOption> getSmallWeightConfig(
-      Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
+  private Set<BinaryOption> getSmallWeightConfig(Iterable<Set<BinaryOption>> featureRanking) {
     Store store = context.getStore();
-    for (Entry<Set<BinaryOption>, Integer> entry : featureRanking) {
-      Set<BinaryOption> candidates = entry.getKey();
+    for (Set<BinaryOption> candidates : featureRanking) {
 
       // record current state
       int baseLevel = store.level;

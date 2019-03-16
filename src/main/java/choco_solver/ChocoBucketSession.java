@@ -1,7 +1,5 @@
 package choco_solver;
 
-import static java.util.Comparator.comparing;
-
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.variables.BoolVar;
@@ -15,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,25 +36,22 @@ public final class ChocoBucketSession implements BucketSession {
   @Nullable
   @Override
   public Set<BinaryOption> generateConfig(int selectedOptionsCount,
-                                          Map<Set<BinaryOption>, Integer> featureWeight) {
+                                          List<Set<BinaryOption>> featureRanking) {
     Collection<Set<BinaryOption>> excludedConfigs =
         buckets.computeIfAbsent(selectedOptionsCount, n -> new HashSet<>());
-    Set<BinaryOption> config = generateConfig(selectedOptionsCount, featureWeight, excludedConfigs);
+    Set<BinaryOption> config = generateConfig(selectedOptionsCount,
+                                              featureRanking,
+                                              excludedConfigs);
     excludedConfigs.add(config);
     return config;
   }
 
   @Nullable
   private Set<BinaryOption> generateConfig(int selectedOptionsCount,
-                                           Map<Set<BinaryOption>, Integer> featureWeight,
-                                           Collection<Set<BinaryOption>> excludedConfigs) {
+                                           Iterable<Set<BinaryOption>> featureRanking,
+                                           Iterable<Set<BinaryOption>> excludedConfigs) {
     // get access to the constraint system
     Model model = context.getModel();
-    List<Entry<Set<BinaryOption>, Integer>> featureRanking
-        = featureWeight.entrySet()
-                       .stream()
-                       .sorted(comparing(Entry::getValue))
-                       .collect(Collectors.toList());
 
     // there should be exactly selectedOptionsCount features selected
     BoolVar[] allVariables = new BoolVar[context.getVariableCount()];
@@ -96,11 +90,9 @@ public final class ChocoBucketSession implements BucketSession {
   }
 
   @Nullable
-  private Set<BinaryOption> getSmallWeightConfig(
-      Model model, Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
-    for (Entry<Set<BinaryOption>, Integer> entry : featureRanking) {
-      Set<BinaryOption> candidates = entry.getKey();
-
+  private Set<BinaryOption> getSmallWeightConfig(Model model,
+                                                 Iterable<Set<BinaryOption>> featureRanking) {
+    for (Set<BinaryOption> candidates : featureRanking) {
       // record current state
       int nbVars = model.getNbVars();
       int nbCstrs = model.getNbCstrs();
