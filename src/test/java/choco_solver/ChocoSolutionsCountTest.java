@@ -14,7 +14,7 @@ final class ChocoSolutionsCountTest extends AbstractSolutionsCountTest {
 
   @Override
   protected int countSolutions(VariabilityModel vm) {
-    Model constraintSystem = ConstraintSystemContext.from(vm).getConstraintSystem();
+    Model constraintSystem = ConstraintSystemContext.from(vm).getModel();
     Solver solver = constraintSystem.getSolver();
     List<Solution> allSolutions = solver.findAllSolutions();
     return allSolutions.size();

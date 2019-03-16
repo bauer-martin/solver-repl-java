@@ -33,6 +33,15 @@ class ChocoVariantGenerator implements VariantGenerator {
     this.context = context;
   }
 
+  @SuppressWarnings("TypeMayBeWeakened")
+  private static void constraintSelectedOptions(ConstraintSystemContext context,
+                                                Set<BinaryOption> config) {
+    for (BinaryOption option : config) {
+      Variable variable = context.getVariable(option);
+      variable.asBoolVar().eq(1).post();
+    }
+  }
+
   private static IntVar addOptionWeighting(ConstraintSystemContext context,
                                            Function<BinaryOption, Integer> weightingFunction) {
     BoolVar[] goals = new BoolVar[context.getVariableCount()];
@@ -44,10 +53,10 @@ class ChocoVariantGenerator implements VariantGenerator {
       coefficients[index] = weightingFunction.apply(option);
       index++;
     }
-    Model cs = context.getConstraintSystem();
-    IntVar sumVar = cs.intVar("sumVar", IntVar.MIN_INT_BOUND,
-                              IntVar.MAX_INT_BOUND, true);
-    cs.scalar(goals, coefficients, "=", sumVar).post();
+    Model model = context.getModel();
+    IntVar sumVar = model.intVar("sumVar", IntVar.MIN_INT_BOUND,
+                                 IntVar.MAX_INT_BOUND, true);
+    model.scalar(goals, coefficients, "=", sumVar).post();
     return sumVar;
   }
 
@@ -56,10 +65,10 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
                                                Set<BinaryOption> unwantedOptions) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
 
     // feature selection
-    constraintSelectedOptions(config);
+    constraintSelectedOptions(context, config);
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
@@ -68,13 +77,13 @@ class ChocoVariantGenerator implements VariantGenerator {
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     // find an optimal solution
-    Solver solver = cs.getSolver();
+    Solver solver = model.getSolver();
     Solution optimalSolution = solver.findOptimalSolution(sumVar, false);
     Set<BinaryOption> result = optimalSolution == null ? null :
                                SolutionTranslator.toBinaryOptions(optimalSolution, context);
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return result;
   }
 
@@ -83,10 +92,10 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Collection<Set<BinaryOption>> findAllMaximizedConfigs(Set<BinaryOption> config,
                                                                Set<BinaryOption> unwantedOptions) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
 
     // feature selection
-    constraintSelectedOptions(config);
+    constraintSelectedOptions(context, config);
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
@@ -96,14 +105,14 @@ class ChocoVariantGenerator implements VariantGenerator {
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     // find all optimal solutions
-    Solver solver = cs.getSolver();
+    Solver solver = model.getSolver();
     List<Solution> optimalSolutions = solver.findAllOptimalSolutions(sumVar,
                                                                      false);
     Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(optimalSolutions,
                                                                               context);
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return result;
   }
 
@@ -111,16 +120,16 @@ class ChocoVariantGenerator implements VariantGenerator {
   @Override
   public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
 
     // find solutions
-    Solver solver = cs.getSolver();
-    List<Solution> solutions = n > 0 ? solver.findAllSolutions(new SolutionCounter(cs, n))
+    Solver solver = model.getSolver();
+    List<Solution> solutions = n > 0 ? solver.findAllSolutions(new SolutionCounter(model, n))
                                      : solver.findAllSolutions();
     Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(solutions, context);
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return result;
   }
 
@@ -129,7 +138,7 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Tuple<Set<BinaryOption>, Set<BinaryOption>> generateConfigWithoutOption(
       Set<BinaryOption> config, BinaryOption optionToRemove) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
 
     // forbid the selection of this configuration option
     context.getVariable(optionToRemove).asBoolVar().eq(0).post();
@@ -141,7 +150,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     IntVar sumVar = addOptionWeighting(context, option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
-    Solver solver = cs.getSolver();
+    Solver solver = model.getSolver();
     Solution optimalSolution = solver.findOptimalSolution(sumVar, false);
     Tuple<Set<BinaryOption>, Set<BinaryOption>> result;
     if (optimalSolution == null) {
@@ -158,7 +167,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     }
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return result;
   }
 
@@ -166,10 +175,10 @@ class ChocoVariantGenerator implements VariantGenerator {
   @Override
   public Collection<Set<BinaryOption>> generateAllVariants(Set<BinaryOption> optionsToConsider) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
 
     // find all solutions
-    Solver solver = cs.getSolver();
+    Solver solver = model.getSolver();
     List<Solution> solutions = solver.findAllSolutions();
     Collection<Set<BinaryOption>> allVariants
         = solutions.stream()
@@ -179,7 +188,7 @@ class ChocoVariantGenerator implements VariantGenerator {
                    .collect(Collectors.toSet());
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return allVariants;
   }
 
@@ -187,13 +196,5 @@ class ChocoVariantGenerator implements VariantGenerator {
   @Override
   public BucketSession createBucketSession() {
     return new ChocoBucketSession(context);
-  }
-
-  @SuppressWarnings("TypeMayBeWeakened")
-  private void constraintSelectedOptions(Set<BinaryOption> config) {
-    for (BinaryOption option : config) {
-      Variable variable = context.getVariable(option);
-      variable.asBoolVar().eq(1).post();
-    }
   }
 }

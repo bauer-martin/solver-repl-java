@@ -25,7 +25,7 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
   @Override
   public boolean isValid(Set<BinaryOption> selectedOptions, boolean isPartialConfiguration) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
 
     // feature selection
     for (Entry<ConfigurationOption, Variable> entry : context) {
@@ -40,11 +40,11 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
     }
 
     // check if configuration is valid
-    Solver solver = cs.getSolver();
+    Solver solver = model.getSolver();
     boolean isSolvable = solver.solve();
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return isSolvable;
   }
 }

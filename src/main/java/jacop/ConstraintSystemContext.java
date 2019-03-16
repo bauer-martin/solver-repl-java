@@ -32,7 +32,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   private final VariabilityModel vm;
 
   @Nonnull
-  private final Store model;
+  private final Store store;
 
   @Nonnull
   private final Map<ConfigurationOption, BooleanVar> optionToVar;
@@ -42,7 +42,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
 
   ConstraintSystemContext(VariabilityModel vm) {
     this.vm = vm;
-    model = new Store();
+    store = new Store();
     List<BinaryOption> binaryOptions = vm.getBinaryOptions();
     optionToVar = new HashMap<>(binaryOptions.size());
     variables = new IntVar[binaryOptions.size()];
@@ -55,7 +55,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
     List<BinaryOption> binaryOptions = vm.getBinaryOptions();
     for (int i = 0; i < binaryOptions.size(); i++) {
       BinaryOption option = binaryOptions.get(i);
-      BooleanVar variable = new BooleanVar(model, option.getName());
+      BooleanVar variable = new BooleanVar(store, option.getName());
       optionToVar.put(option, variable);
       variables[i] = variable;
     }
@@ -72,17 +72,17 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   }
 
   private void addVariableConstraints(BinaryOption option) {
-    assert model != null;
+    assert store != null;
     assert optionToVar != null;
     BooleanVar variable = optionToVar.get(option);
     if (option.isRoot()) {
-      model.impose(new XeqC(variable, 1));
+      store.impose(new XeqC(variable, 1));
     } else if (option.getParent() != null) {
       BooleanVar parentVar = optionToVar.get(option.getParent());
       if (option.isMandatory() && !option.hasExcludedOptions()) {
-        model.impose(new XeqY(variable, parentVar));
+        store.impose(new XeqY(variable, parentVar));
       } else {
-        model.impose(new Or(new XeqC(variable, 0), new XeqC(parentVar, 1)));
+        store.impose(new Or(new XeqC(variable, 0), new XeqC(parentVar, 1)));
       }
     } else {
       throw new IllegalArgumentException(option.getName() + " has no parent");
@@ -91,7 +91,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
 
   private void processAlternativeOptions(Collection<ConfigurationOption> processedAlternatives,
                                          BinaryOption option) {
-    assert model != null;
+    assert store != null;
     assert optionToVar != null;
     List<ConfigurationOption> options = option.collectAlternativeOptions();
     if (options.isEmpty() || processedAlternatives.contains(option)) {
@@ -104,14 +104,14 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
       ConfigurationOption o = options.get(i - 1);
       alternativeGroupVars[i] = optionToVar.get(o);
     }
-    IntVar sumVar = new IntVar(model, new BoundDomain(0, alternativeGroupVars.length));
-    model.impose(new SumBool(alternativeGroupVars, "==", sumVar));
-    model.impose(new Or(new XeqC(parentVar, 0), new XeqC(sumVar, 1)));
+    IntVar sumVar = new IntVar(store, new BoundDomain(0, alternativeGroupVars.length));
+    store.impose(new SumBool(alternativeGroupVars, "==", sumVar));
+    store.impose(new Or(new XeqC(parentVar, 0), new XeqC(sumVar, 1)));
     processedAlternatives.addAll(options);
   }
 
   private void processExcludedOptionsAsCrossTreeConstraints(BinaryOption option) {
-    assert model != null;
+    assert store != null;
     assert optionToVar != null;
     Collection<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
     for (List<ConfigurationOption> nonAlternativeOption : options) {
@@ -120,12 +120,12 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
         ConfigurationOption o = nonAlternativeOption.get(i);
         orVars[i] = new XeqC(optionToVar.get(o), 1);
       }
-      model.impose(new Or(new XeqC(optionToVar.get(option), 0), new Not(new Or(orVars))));
+      store.impose(new Or(new XeqC(optionToVar.get(option), 0), new Not(new Or(orVars))));
     }
   }
 
   private void processImpliedOptions(BinaryOption option) {
-    assert model != null;
+    assert store != null;
     assert optionToVar != null;
     for (List<ConfigurationOption> impliedOptions : option.getImpliedOptions()) {
       PrimitiveConstraint[] orVars = new PrimitiveConstraint[impliedOptions.size()];
@@ -133,7 +133,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
         ConfigurationOption o = impliedOptions.get(i);
         orVars[i] = new XeqC(optionToVar.get(o), 1);
       }
-      model.impose(new Or(new XeqC(optionToVar.get(option), 0), new Or(orVars)));
+      store.impose(new Or(new XeqC(optionToVar.get(option), 0), new Or(orVars)));
     }
   }
 
@@ -142,7 +142,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
    * The constraints should be in conjunctive normal form.
    */
   private void processBinaryConstraints() {
-    assert model != null;
+    assert store != null;
     assert optionToVar != null;
     for (String constraint : vm.getBinaryConstraints()) {
       boolean and = false;
@@ -168,9 +168,9 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
         }
       }
       if (and) {
-        model.impose(new And(termVars));
+        store.impose(new And(termVars));
       } else {
-        model.impose(new Or(termVars));
+        store.impose(new Or(termVars));
       }
     }
   }
@@ -184,7 +184,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
 
   @Nonnull
   Store getStore() {
-    return model;
+    return store;
   }
 
   IntVar[] getVariables() {

@@ -52,7 +52,7 @@ public final class ChocoBucketSession implements BucketSession {
                                            Map<Set<BinaryOption>, Integer> featureWeight,
                                            Collection<Set<BinaryOption>> excludedConfigs) {
     // get access to the constraint system
-    Model cs = context.getConstraintSystem();
+    Model model = context.getModel();
     List<Entry<Set<BinaryOption>, Integer>> featureRanking
         = featureWeight.entrySet()
                        .stream()
@@ -66,7 +66,7 @@ public final class ChocoBucketSession implements BucketSession {
       allVariables[index] = entry.getValue().asBoolVar();
       index++;
     }
-    cs.sum(allVariables, "=", selectedOptionsCount).post();
+    model.sum(allVariables, "=", selectedOptionsCount).post();
 
     // excluded configurations should not be considered as a solution
     List<BinaryOption> allBinaryOptions = context.getVariabilityModel().getBinaryOptions();
@@ -77,48 +77,48 @@ public final class ChocoBucketSession implements BucketSession {
         BoolVar variable = context.getVariable(option).asBoolVar();
         ands[i] = excludedConfig.contains(option) ? variable : variable.not();
       }
-      cs.not(cs.and(ands)).post();
+      model.not(model.and(ands)).post();
     }
 
     // if we have a feature ranking, we can use it to approximate the optimal solution
-    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(cs, featureRanking);
+    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(model, featureRanking);
     Set<BinaryOption> result;
     if (approximateOptimal == null) {
-      Solution solution = cs.getSolver().findSolution();
+      Solution solution = model.getSolver().findSolution();
       result = solution == null ? null : SolutionTranslator.toBinaryOptions(solution, context);
     } else {
       result = approximateOptimal;
     }
 
     // cleanup
-    context.resetConstraintSystem();
+    context.resetModel();
     return result;
   }
 
   @Nullable
   private Set<BinaryOption> getSmallWeightConfig(
-      Model cs, Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
+      Model model, Iterable<Entry<Set<BinaryOption>, Integer>> featureRanking) {
     for (Entry<Set<BinaryOption>, Integer> entry : featureRanking) {
       Set<BinaryOption> candidates = entry.getKey();
 
       // record current state
-      int nbVars = cs.getNbVars();
-      int nbCstrs = cs.getNbCstrs();
+      int nbVars = model.getNbVars();
+      int nbCstrs = model.getNbCstrs();
 
       // force features to be selected
       BoolVar[] ands = candidates.stream()
                                  .map(option -> context.getVariable(option).asBoolVar())
                                  .toArray(BoolVar[]::new);
-      cs.and(ands).post();
+      model.and(ands).post();
 
       // check if satisfiable
-      Solution solution = cs.getSolver().findSolution();
+      Solution solution = model.getSolver().findSolution();
 
       // soft reset constraint system
-      Arrays.stream(cs.getCstrs(), nbCstrs, cs.getNbCstrs()).forEach(cs::unpost);
-      Arrays.stream(cs.getVars(), nbVars, cs.getNbVars()).forEach(cs::unassociates);
-      cs.getCachedConstants().clear();
-      cs.getSolver().reset();
+      Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
+      Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
+      model.getCachedConstants().clear();
+      model.getSolver().reset();
 
       // stop if solution has been found
       if (solution != null) {

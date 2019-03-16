@@ -30,7 +30,7 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   @Nonnull
   private final Map<ConfigurationOption, Variable> optionToVar;
 
-  private boolean constraintSystemIsInUse;
+  private boolean modelIsInUse;
 
   private int nbVars;
 
@@ -166,23 +166,23 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   }
 
   @Nonnull
-  Model getConstraintSystem() {
-    if (constraintSystemIsInUse) {
+  Model getModel() {
+    if (modelIsInUse) {
       throw new UnsupportedOperationException("Constraint system can not be used more than once! "
-                                              + "Call resetConstraintSystem() first!");
+                                              + "Call resetModel() first!");
     }
     nbVars = model.getNbVars();
     nbCstrs = model.getNbCstrs();
-    constraintSystemIsInUse = true;
+    modelIsInUse = true;
     return model;
   }
 
-  void resetConstraintSystem() {
+  void resetModel() {
     Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
     Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
     model.getCachedConstants().clear();
     model.getSolver().hardReset();
-    constraintSystemIsInUse = false;
+    modelIsInUse = false;
   }
 
   int getVariableCount() {
