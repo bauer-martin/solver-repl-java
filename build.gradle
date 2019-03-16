@@ -2,9 +2,6 @@ plugins {
     id 'java'
 }
 
-group 'de.martinbauer'
-version '1.0-SNAPSHOT'
-
 sourceCompatibility = 1.8
 
 repositories {
@@ -12,10 +9,10 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.code.findbugs:annotations:3.0.0'
-    compile group: 'org.dom4j', name: 'dom4j', version: '2.1.0'
-    compile group: 'org.choco-solver', name: 'choco-solver', version: '4.10.0'
-    compile group: 'org.jacop', name: 'jacop', version: '4.6.0'
+    implementation 'com.google.code.findbugs:annotations:3.0.0'
+    implementation 'org.dom4j:dom4j:2.1.0'
+    implementation 'org.choco-solver:choco-solver:4.10.0'
+    implementation 'org.jacop:jacop:4.6.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.1'
 }
