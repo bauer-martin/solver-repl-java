@@ -6,14 +6,12 @@ import static jacop.JaCoPSearch.performSearch;
 import org.jacop.constraints.LinearInt;
 import org.jacop.constraints.XeqC;
 import org.jacop.core.BooleanVar;
-import org.jacop.core.Domain;
 import org.jacop.core.IntDomain;
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -154,27 +152,11 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, -1);
     boolean hasFoundSolution = performSearch(context, solutionListener);
     if (hasFoundSolution) {
-      Collection<Set<BinaryOption>> allVariants = new HashSet<>();
-      int solutionCount = solutionListener.solutionsNo();
-      for (int solutionNumber = 1; solutionNumber <= solutionCount; solutionNumber++) {
-        Domain[] solution = solutionListener.getSolution(solutionNumber);
-        Set<BinaryOption> config = new HashSet<>();
-        int i = 0;
-        for (Entry<ConfigurationOption, BooleanVar> entry : context) {
-          BinaryOption option = (BinaryOption) entry.getKey();
-          // ignore all options that should not be considered.
-          if (optionsToConsider.contains(option)) {
-            if (((IntDomain) solution[i]).value() == 1) {
-              config.add(vm.getBinaryOption(solutionListener.vars[i].id));
-            }
-          }
-          i++;
-        }
-        if (!config.isEmpty()) {
-          allVariants.add(config);
-        }
-      }
-      return allVariants;
+      Collection<Set<BinaryOption>> allVariants = solutionListener.getSolutionsAsConfigs();
+      return allVariants.stream()
+                        .peek(solution -> solution.retainAll(optionsToConsider))
+                        .filter(binaryOptions -> !binaryOptions.isEmpty())
+                        .collect(Collectors.toSet());
     } else {
       return Collections.emptyList();
     }

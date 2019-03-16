@@ -9,7 +9,6 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -172,23 +171,12 @@ class ChocoVariantGenerator implements VariantGenerator {
     // find all solutions
     Solver solver = cs.getSolver();
     List<Solution> solutions = solver.findAllSolutions();
-    Collection<Set<BinaryOption>> allVariants = new HashSet<>();
-    for (Solution solution : solutions) {
-      Set<BinaryOption> config = new HashSet<>();
-      for (Entry<ConfigurationOption, Variable> entry : context) {
-        BinaryOption option = (BinaryOption) entry.getKey();
-        // ignore all options that should not be considered.
-        if (optionsToConsider.contains(option)) {
-          int value = solution.getIntVal(entry.getValue().asBoolVar());
-          if (value == 1) {
-            config.add(option);
-          }
-        }
-      }
-      if (!config.isEmpty()) {
-        allVariants.add(config);
-      }
-    }
+    Collection<Set<BinaryOption>> allVariants
+        = solutions.stream()
+                   .map(solution -> SolutionTranslator.toBinaryOptions(solution, context))
+                   .peek(solution -> solution.retainAll(optionsToConsider))
+                   .filter(binaryOptions -> !binaryOptions.isEmpty())
+                   .collect(Collectors.toSet());
 
     // cleanup
     context.resetConstraintSystem();
