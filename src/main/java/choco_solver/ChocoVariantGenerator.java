@@ -34,6 +34,24 @@ class ChocoVariantGenerator implements VariantGenerator {
     this.context = context;
   }
 
+  private static IntVar addOptionWeighting(ConstraintSystemContext context,
+                                           Function<BinaryOption, Integer> weightingFunction) {
+    BoolVar[] goals = new BoolVar[context.getVariableCount()];
+    int[] coefficients = new int[context.getVariableCount()];
+    int index = 0;
+    for (Entry<ConfigurationOption, Variable> entry : context) {
+      BinaryOption option = (BinaryOption) entry.getKey();
+      goals[index] = entry.getValue().asBoolVar();
+      coefficients[index] = weightingFunction.apply(option);
+      index++;
+    }
+    Model cs = context.getConstraintSystem();
+    IntVar sumVar = cs.intVar("sumVar", IntVar.MIN_INT_BOUND,
+                              IntVar.MAX_INT_BOUND, true);
+    cs.scalar(goals, coefficients, "=", sumVar).post();
+    return sumVar;
+  }
+
   @Nullable
   @Override
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
@@ -47,12 +65,12 @@ class ChocoVariantGenerator implements VariantGenerator {
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
     // All other options are assigned 1 as weight, meaning they are not weighted at all.
-    IntVar selectedOptionsCountVar = constraintSelectedOptions(
-        cs, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
+    IntVar sumVar = addOptionWeighting(
+        context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     // find an optimal solution
     Solver solver = cs.getSolver();
-    Solution optimalSolution = solver.findOptimalSolution(selectedOptionsCountVar, false);
+    Solution optimalSolution = solver.findOptimalSolution(sumVar, false);
     Set<BinaryOption> result = optimalSolution == null ? null :
                                SolutionTranslator.toBinaryOptions(optimalSolution, context);
 
@@ -75,12 +93,12 @@ class ChocoVariantGenerator implements VariantGenerator {
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
     // All other options are assigned -1 as weight. Out goal is to maximize the number of
     // selected options, i.e., the more options selected, the better/smaller the cost.
-    IntVar selectedOptionsCountVar = constraintSelectedOptions(
-        cs, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
+    IntVar sumVar = addOptionWeighting(
+        context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     // find all optimal solutions
     Solver solver = cs.getSolver();
-    List<Solution> optimalSolutions = solver.findAllOptimalSolutions(selectedOptionsCountVar,
+    List<Solution> optimalSolutions = solver.findAllOptimalSolutions(sumVar,
                                                                      false);
     Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(optimalSolutions,
                                                                               context);
@@ -121,12 +139,11 @@ class ChocoVariantGenerator implements VariantGenerator {
     // configuration to increase chances that the option gets selected again. A positive value
     // will lead to a small chance that this option gets selected when it is not part of the
     // original configuration.
-    IntVar selectedOptionsCountVar = constraintSelectedOptions(
-        cs, option -> config.contains(option) ? -1000 : 1000);
+    IntVar sumVar = addOptionWeighting(context, option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
     Solver solver = cs.getSolver();
-    Solution optimalSolution = solver.findOptimalSolution(selectedOptionsCountVar, false);
+    Solution optimalSolution = solver.findOptimalSolution(sumVar, false);
     Tuple<Set<BinaryOption>, Set<BinaryOption>> result;
     if (optimalSolution == null) {
       result = null;
@@ -190,22 +207,5 @@ class ChocoVariantGenerator implements VariantGenerator {
       Variable variable = context.getVariable(option);
       variable.asBoolVar().eq(1).post();
     }
-  }
-
-  private IntVar constraintSelectedOptions(Model cs,
-                                           Function<BinaryOption, Integer> weightingFunction) {
-    BoolVar[] goals = new BoolVar[context.getVariableCount()];
-    int[] coefficients = new int[context.getVariableCount()];
-    int index = 0;
-    for (Entry<ConfigurationOption, Variable> entry : context) {
-      BinaryOption option = (BinaryOption) entry.getKey();
-      goals[index] = entry.getValue().asBoolVar();
-      coefficients[index] = weightingFunction.apply(option);
-      index++;
-    }
-    IntVar selectedOptionsCountVar = cs.intVar("selectedOptionsCount", IntVar.MIN_INT_BOUND,
-                                               IntVar.MAX_INT_BOUND, true);
-    cs.scalar(goals, coefficients, "=", selectedOptionsCountVar).post();
-    return selectedOptionsCountVar;
   }
 }

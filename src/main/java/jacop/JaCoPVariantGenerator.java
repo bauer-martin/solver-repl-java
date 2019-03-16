@@ -49,7 +49,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     }
   }
 
-  private static IntVar constraintSelectedOptions(
+  private static IntVar addOptionWeighting(
       ConstraintSystemContext context, Function<BinaryOption, Integer> weightingFunction) {
     BooleanVar[] goals = new BooleanVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
@@ -61,7 +61,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
       index++;
     }
     Store store = context.getStore();
-    IntVar sumVar = new IntVar(store, "selectedOptionsCount", IntDomain.MinInt, IntDomain.MaxInt);
+    IntVar sumVar = new IntVar(store, "sumVar", IntDomain.MinInt, IntDomain.MaxInt);
     store.impose(new LinearInt(goals, coefficients, "==", sumVar));
     return sumVar;
   }
@@ -75,7 +75,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     // feature selection
     constraintSelectedOptions(context, config);
 
-    IntVar sumVar = constraintSelectedOptions(
+    IntVar sumVar = addOptionWeighting(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
@@ -93,7 +93,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     // feature selection
     constraintSelectedOptions(context, config);
 
-    IntVar sumVar = constraintSelectedOptions(
+    IntVar sumVar = addOptionWeighting(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     OptionalInt optimalCost = performMinimizingSearch(context, null, sumVar);
@@ -128,8 +128,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     // configuration to increase chances that the option gets selected again. A positive value
     // will lead to a small chance that this option gets selected when it is not part of the
     // original configuration.
-    IntVar sumVar = constraintSelectedOptions(
-        context, option -> config.contains(option) ? -1000 : 1000);
+    IntVar sumVar = addOptionWeighting(context, option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
