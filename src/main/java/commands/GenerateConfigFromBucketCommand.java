@@ -46,7 +46,7 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
   public String execute(String argsString) {
     String[] tokens = argsString.split(" ");
     if (tokens.length < 1 || tokens[0].length() < 1) {
-      return error("no number specified specified");
+      return error("no number specified");
     }
     int selectedOptionsCount;
     try {
