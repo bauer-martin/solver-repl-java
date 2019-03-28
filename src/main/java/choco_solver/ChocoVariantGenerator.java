@@ -42,7 +42,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     }
   }
 
-  private static IntVar addOptionWeighting(ConstraintSystemContext context,
+  private static IntVar addOptionWeighting(ConstraintSystemContext context, Model model,
                                            Function<BinaryOption, Integer> weightingFunction) {
     BoolVar[] goals = new BoolVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
@@ -53,7 +53,6 @@ class ChocoVariantGenerator implements VariantGenerator {
       coefficients[index] = weightingFunction.apply(option);
       index++;
     }
-    Model model = context.getModel();
     IntVar sumVar = model.intVar("sumVar", IntVar.MIN_INT_BOUND,
                                  IntVar.MAX_INT_BOUND, true);
     model.scalar(goals, coefficients, "=", sumVar).post();
@@ -74,7 +73,8 @@ class ChocoVariantGenerator implements VariantGenerator {
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
     // All other options are assigned 1 as weight, meaning they are not weighted at all.
     IntVar sumVar = addOptionWeighting(
-        context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
+        context, model,
+        option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     // find an optimal solution
     Solver solver = model.getSolver();
@@ -102,7 +102,8 @@ class ChocoVariantGenerator implements VariantGenerator {
     // All other options are assigned -1 as weight. Out goal is to maximize the number of
     // selected options, i.e., the more options selected, the better/smaller the cost.
     IntVar sumVar = addOptionWeighting(
-        context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
+        context, model,
+        option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     // find all optimal solutions
     Solver solver = model.getSolver();
@@ -147,7 +148,9 @@ class ChocoVariantGenerator implements VariantGenerator {
     // configuration to increase chances that the option gets selected again. A positive value
     // will lead to a small chance that this option gets selected when it is not part of the
     // original configuration.
-    IntVar sumVar = addOptionWeighting(context, option -> config.contains(option) ? -1000 : 1000);
+    IntVar sumVar = addOptionWeighting(context,
+                                       model,
+                                       option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
     Solver solver = model.getSolver();
