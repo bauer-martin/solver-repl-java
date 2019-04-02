@@ -27,9 +27,9 @@ public final class ChocoBucketSession implements BucketSession {
   private final Map<Integer, Collection<Set<BinaryOption>>> buckets = new HashMap<>();
 
   @Nonnull
-  private final ConstraintSystemContext context;
+  private final ChocoConstraintSystemContext context;
 
-  ChocoBucketSession(ConstraintSystemContext context) {
+  ChocoBucketSession(ChocoConstraintSystemContext context) {
     this.context = context;
   }
 

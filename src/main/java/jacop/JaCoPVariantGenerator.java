@@ -38,7 +38,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   }
 
   @SuppressWarnings("TypeMayBeWeakened")
-  private static void constraintSelectedOptions(ConstraintSystemContext context,
+  private static void constraintSelectedOptions(JaCoPConstraintSystemContext context,
                                                 Set<BinaryOption> config) {
     Store store = context.getStore();
     for (BinaryOption option : config) {
@@ -48,7 +48,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   }
 
   private static IntVar addOptionWeighting(
-      ConstraintSystemContext context, Function<BinaryOption, Integer> weightingFunction) {
+      JaCoPConstraintSystemContext context, Function<BinaryOption, Integer> weightingFunction) {
     BooleanVar[] goals = new BooleanVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
     int index = 0;
@@ -68,7 +68,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Override
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
                                                Set<BinaryOption> unwantedOptions) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
+    JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
 
     // feature selection
     constraintSelectedOptions(context, config);
@@ -85,7 +85,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Override
   public Collection<Set<BinaryOption>> findAllMaximizedConfigs(Set<BinaryOption> config,
                                                                Set<BinaryOption> unwantedOptions) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
+    JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     Store store = context.getStore();
 
     // feature selection
@@ -106,7 +106,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Nonnull
   @Override
   public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
+    JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, n);
     boolean hasFoundSolution = performSearch(context, solutionListener);
     return hasFoundSolution ? solutionListener.getSolutionsAsConfigs() : Collections.emptyList();
@@ -116,7 +116,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Override
   public Tuple<Set<BinaryOption>, Set<BinaryOption>> generateConfigWithoutOption(
       Set<BinaryOption> config, BinaryOption optionToRemove) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
+    JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     Store store = context.getStore();
 
     // forbid the selection of this configuration option
@@ -147,7 +147,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Nonnull
   @Override
   public Collection<Set<BinaryOption>> generateAllVariants(Set<BinaryOption> optionsToConsider) {
-    ConstraintSystemContext context = new ConstraintSystemContext(vm);
+    JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     // find all solutions
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, -1);
     boolean hasFoundSolution = performSearch(context, solutionListener);

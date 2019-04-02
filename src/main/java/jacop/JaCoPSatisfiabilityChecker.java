@@ -23,10 +23,10 @@ import spl_conqueror.VariabilityModel;
 public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
 
   @Nonnull
-  private final ConstraintSystemContext context;
+  private final JaCoPConstraintSystemContext context;
 
   JaCoPSatisfiabilityChecker(VariabilityModel variabilityModel) {
-    context = new ConstraintSystemContext(variabilityModel);
+    context = new JaCoPConstraintSystemContext(variabilityModel);
   }
 
   @Override

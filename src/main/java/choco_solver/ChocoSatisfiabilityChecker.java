@@ -16,9 +16,9 @@ import spl_conqueror.SatisfiabilityChecker;
 final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
 
   @Nonnull
-  private final ConstraintSystemContext context;
+  private final ChocoConstraintSystemContext context;
 
-  ChocoSatisfiabilityChecker(ConstraintSystemContext context) {
+  ChocoSatisfiabilityChecker(ChocoConstraintSystemContext context) {
     this.context = context;
   }
 

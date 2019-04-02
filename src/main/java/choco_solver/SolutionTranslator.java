@@ -22,7 +22,7 @@ public final class SolutionTranslator {
 
   @Nonnull
   static Set<BinaryOption> toBinaryOptions(Solution solution,
-                                           ConstraintSystemContext context) {
+                                           ChocoConstraintSystemContext context) {
     Set<BinaryOption> config = new HashSet<>(context.getVariableCount());
     for (Entry<ConfigurationOption, Variable> entry : context) {
       int value = solution.getIntVal(entry.getValue().asBoolVar());
@@ -35,7 +35,7 @@ public final class SolutionTranslator {
 
   @Nonnull
   static Collection<Set<BinaryOption>> toBinaryOptions(Collection<Solution> solutions,
-                                                       ConstraintSystemContext context) {
+                                                       ChocoConstraintSystemContext context) {
     return solutions.stream()
                     .map(solution -> toBinaryOptions(solution, context))
                     .collect(Collectors.toCollection(() -> new ArrayList<>(solutions.size())));

@@ -10,10 +10,10 @@ import spl_conqueror.VariantGenerator;
 public final class ChocoSolverFactory implements SolverFactory {
 
   @Nonnull
-  private final ConstraintSystemContext context;
+  private final ChocoConstraintSystemContext context;
 
   public ChocoSolverFactory(VariabilityModel vm) {
-    context = ConstraintSystemContext.from(vm);
+    context = ChocoConstraintSystemContext.from(vm);
   }
 
   @Nonnull

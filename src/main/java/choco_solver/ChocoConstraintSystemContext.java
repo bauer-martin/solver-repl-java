@@ -1,17 +1,10 @@
-package jacop;
+package choco_solver;
 
-import org.jacop.constraints.And;
-import org.jacop.constraints.Not;
-import org.jacop.constraints.Or;
-import org.jacop.constraints.PrimitiveConstraint;
-import org.jacop.constraints.SumBool;
-import org.jacop.constraints.XeqC;
-import org.jacop.constraints.XeqY;
-import org.jacop.core.BooleanVar;
-import org.jacop.core.BoundDomain;
-import org.jacop.core.IntVar;
-import org.jacop.core.Store;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.Variable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,38 +19,42 @@ import spl_conqueror.BinaryOption;
 import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariabilityModel;
 
-final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOption, BooleanVar>> {
+final class ChocoConstraintSystemContext implements Iterable<Entry<ConfigurationOption, Variable>> {
 
   @Nonnull
   private final VariabilityModel vm;
 
   @Nonnull
-  private final Store store;
+  private final Model model;
 
   @Nonnull
-  private final Map<ConfigurationOption, BooleanVar> optionToVar;
+  private final Map<ConfigurationOption, Variable> optionToVar;
 
-  @Nonnull
-  private final IntVar[] variables;
+  private boolean modelIsInUse;
 
-  ConstraintSystemContext(VariabilityModel vm) {
+  private int nbVars;
+
+  private int nbCstrs;
+
+  private ChocoConstraintSystemContext(VariabilityModel vm) {
     this.vm = vm;
-    store = new Store();
-    List<BinaryOption> binaryOptions = vm.getBinaryOptions();
-    optionToVar = new HashMap<>(binaryOptions.size());
-    variables = new IntVar[binaryOptions.size()];
-    createVariables();
-    processBinaryOptions();
-    processBinaryConstraints();
+    model = new Model();
+    optionToVar = new HashMap<>();
+  }
+
+  @Nonnull
+  static ChocoConstraintSystemContext from(VariabilityModel vm) {
+    ChocoConstraintSystemContext context = new ChocoConstraintSystemContext(vm);
+    context.createVariables();
+    context.processBinaryOptions();
+    context.processBinaryConstraints();
+    return context;
   }
 
   private void createVariables() {
-    List<BinaryOption> binaryOptions = vm.getBinaryOptions();
-    for (int i = 0; i < binaryOptions.size(); i++) {
-      BinaryOption option = binaryOptions.get(i);
-      BooleanVar variable = new BooleanVar(store, option.getName());
+    for (BinaryOption option : vm.getBinaryOptions()) {
+      BoolVar variable = model.boolVar(option.getName());
       optionToVar.put(option, variable);
-      variables[i] = variable;
     }
   }
 
@@ -72,17 +69,14 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
   }
 
   private void addVariableConstraints(BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
-    BooleanVar variable = optionToVar.get(option);
+    BoolVar variable = optionToVar.get(option).asBoolVar();
     if (option.isRoot()) {
-      store.impose(new XeqC(variable, 1));
+      variable.eq(1).post();
     } else if (option.getParent() != null) {
-      BooleanVar parentVar = optionToVar.get(option.getParent());
+      BoolVar parentVar = optionToVar.get(option.getParent()).asBoolVar();
+      variable.imp(parentVar).post();
       if (option.isMandatory() && !option.hasExcludedOptions()) {
-        store.impose(new XeqY(variable, parentVar));
-      } else {
-        store.impose(new Or(new XeqC(variable, 0), new XeqC(parentVar, 1)));
+        parentVar.imp(variable).post();
       }
     } else {
       throw new IllegalArgumentException(option.getName() + " has no parent");
@@ -91,49 +85,41 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
 
   private void processAlternativeOptions(Collection<ConfigurationOption> processedAlternatives,
                                          BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     List<ConfigurationOption> options = option.collectAlternativeOptions();
     if (options.isEmpty() || processedAlternatives.contains(option)) {
       return;
     }
-    BooleanVar parentVar = optionToVar.get(option.getParent());
-    BooleanVar[] alternativeGroupVars = new BooleanVar[options.size() + 1];
-    alternativeGroupVars[0] = optionToVar.get(option);
+    BoolVar parentVar = optionToVar.get(option.getParent()).asBoolVar();
+    BoolVar[] alternativeGroupVars = new BoolVar[options.size() + 1];
+    alternativeGroupVars[0] = optionToVar.get(option).asBoolVar();
     for (int i = 1; i < alternativeGroupVars.length; i++) {
       ConfigurationOption o = options.get(i - 1);
-      alternativeGroupVars[i] = optionToVar.get(o);
+      alternativeGroupVars[i] = optionToVar.get(o).asBoolVar();
     }
-    IntVar sumVar = new IntVar(store, new BoundDomain(0, alternativeGroupVars.length));
-    store.impose(new SumBool(alternativeGroupVars, "==", sumVar));
-    store.impose(new Or(new XeqC(parentVar, 0), new XeqC(sumVar, 1)));
+    parentVar.imp(model.sum(alternativeGroupVars, "=", 1).reify()).post();
     processedAlternatives.addAll(options);
   }
 
   private void processExcludedOptionsAsCrossTreeConstraints(BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     Collection<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
     for (List<ConfigurationOption> nonAlternativeOption : options) {
-      PrimitiveConstraint[] orVars = new PrimitiveConstraint[nonAlternativeOption.size()];
+      BoolVar[] orVars = new BoolVar[nonAlternativeOption.size()];
       for (int i = 0; i < orVars.length; i++) {
         ConfigurationOption o = nonAlternativeOption.get(i);
-        orVars[i] = new XeqC(optionToVar.get(o), 1);
+        orVars[i] = optionToVar.get(o).asBoolVar();
       }
-      store.impose(new Or(new XeqC(optionToVar.get(option), 0), new Not(new Or(orVars))));
+      optionToVar.get(option).asBoolVar().imp(model.not(model.or(orVars)).reify()).post();
     }
   }
 
   private void processImpliedOptions(BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     for (List<ConfigurationOption> impliedOptions : option.getImpliedOptions()) {
-      PrimitiveConstraint[] orVars = new PrimitiveConstraint[impliedOptions.size()];
+      BoolVar[] orVars = new BoolVar[impliedOptions.size()];
       for (int i = 0; i < orVars.length; i++) {
         ConfigurationOption o = impliedOptions.get(i);
-        orVars[i] = new XeqC(optionToVar.get(o), 1);
+        orVars[i] = optionToVar.get(o).asBoolVar();
       }
-      store.impose(new Or(new XeqC(optionToVar.get(option), 0), new Or(orVars)));
+      optionToVar.get(option).asBoolVar().imp(model.or(orVars).reify()).post();
     }
   }
 
@@ -142,8 +128,6 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
    * The constraints should be in conjunctive normal form.
    */
   private void processBinaryConstraints() {
-    assert store != null;
-    assert optionToVar != null;
     for (String constraint : vm.getBinaryConstraints()) {
       boolean and = false;
       String[] terms;
@@ -154,57 +138,67 @@ final class ConstraintSystemContext implements Iterable<Entry<ConfigurationOptio
         terms = constraint.split("\\|");
       }
 
-      PrimitiveConstraint[] termVars = new PrimitiveConstraint[terms.length];
+      BoolVar[] termVars = new BoolVar[terms.length];
       for (int i = 0; i < termVars.length; i++) {
         String term = terms[i];
         String optionName = term.trim();
         if (optionName.startsWith("!")) {
           optionName = optionName.substring(1);
           BinaryOption option = vm.getBinaryOption(optionName);
-          termVars[i] = new XeqC(optionToVar.get(option), 0);
+          termVars[i] = optionToVar.get(option).asBoolVar().not();
         } else {
           BinaryOption option = vm.getBinaryOption(optionName);
-          termVars[i] = new XeqC(optionToVar.get(option), 1);
+          termVars[i] = optionToVar.get(option).asBoolVar();
         }
       }
       if (and) {
-        store.impose(new And(termVars));
+        model.and(termVars).post();
       } else {
-        store.impose(new Or(termVars));
+        model.or(termVars).post();
       }
     }
   }
 
   @Nonnull
   @Override
-  public Iterator<Entry<ConfigurationOption, BooleanVar>> iterator() {
-    assert optionToVar != null;
+  public Iterator<Entry<ConfigurationOption, Variable>> iterator() {
     return optionToVar.entrySet().iterator();
   }
 
   @Nonnull
-  Store getStore() {
-    return store;
+  Model getModel() {
+    if (modelIsInUse) {
+      throw new UnsupportedOperationException("Constraint system can not be used more than once! "
+                                              + "Call resetModel() first!");
+    }
+    nbVars = model.getNbVars();
+    nbCstrs = model.getNbCstrs();
+    modelIsInUse = true;
+    return model;
   }
 
-  IntVar[] getVariables() {
-    assert variables != null;
-    //noinspection AssignmentOrReturnOfFieldWithMutableType
-    return variables;
+  void resetModel() {
+    Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
+    Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
+    model.getCachedConstants().clear();
+    model.getSolver().hardReset();
+    modelIsInUse = false;
   }
 
   int getVariableCount() {
-    assert variables != null;
-    return variables.length;
+    return optionToVar.size();
   }
 
   @Nonnull
-  BooleanVar getVariable(ConfigurationOption option) {
-    assert optionToVar != null;
+  Variable getVariable(ConfigurationOption option) {
     if (!optionToVar.containsKey(option)) {
       throw new IllegalArgumentException(option.getName() + " is not used as variable");
     }
     return optionToVar.get(option);
   }
-}
 
+  @Nonnull
+  VariabilityModel getVariabilityModel() {
+    return vm;
+  }
+}

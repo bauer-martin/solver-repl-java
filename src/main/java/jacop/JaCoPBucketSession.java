@@ -38,14 +38,14 @@ public final class JaCoPBucketSession implements BucketSession {
   private final Map<Integer, Collection<Set<BinaryOption>>> buckets = new HashMap<>();
 
   @Nonnull
-  private final ConstraintSystemContext context;
+  private final JaCoPConstraintSystemContext context;
 
   @Nullable
   private IntVar sumVar;
 
   public JaCoPBucketSession(VariabilityModel vm) {
     this.vm = vm;
-    context = new ConstraintSystemContext(this.vm);
+    context = new JaCoPConstraintSystemContext(this.vm);
   }
 
   @Nullable

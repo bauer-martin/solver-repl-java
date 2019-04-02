@@ -19,14 +19,14 @@ public final class JaCoPSearch {
   private JaCoPSearch() {
   }
 
-  static boolean performSearch(ConstraintSystemContext context,
+  static boolean performSearch(JaCoPConstraintSystemContext context,
                                SolutionListener<IntVar> solutionListener) {
     Search<IntVar> search = new DepthFirstSearch<>();
     return performSearch(context, search, solutionListener, null);
   }
 
   @Nonnull
-  static OptionalInt performMinimizingSearch(ConstraintSystemContext context,
+  static OptionalInt performMinimizingSearch(JaCoPConstraintSystemContext context,
                                              @Nullable SolutionListener<IntVar> solutionListener,
                                              IntVar costVar) {
     Search<IntVar> search = new DepthFirstSearch<>();
@@ -34,7 +34,7 @@ public final class JaCoPSearch {
     return hasFoundSolution ? OptionalInt.of(search.getCostValue()) : OptionalInt.empty();
   }
 
-  private static boolean performSearch(ConstraintSystemContext context,
+  private static boolean performSearch(JaCoPConstraintSystemContext context,
                                        Search<IntVar> search,
                                        @Nullable SolutionListener<IntVar> solutionListener,
                                        @Nullable IntVar costVar) {

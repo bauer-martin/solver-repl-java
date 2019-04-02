@@ -27,14 +27,14 @@ import utilities.Tuple;
 class ChocoVariantGenerator implements VariantGenerator {
 
   @Nonnull
-  private final ConstraintSystemContext context;
+  private final ChocoConstraintSystemContext context;
 
-  ChocoVariantGenerator(ConstraintSystemContext context) {
+  ChocoVariantGenerator(ChocoConstraintSystemContext context) {
     this.context = context;
   }
 
   @SuppressWarnings("TypeMayBeWeakened")
-  private static void constraintSelectedOptions(ConstraintSystemContext context,
+  private static void constraintSelectedOptions(ChocoConstraintSystemContext context,
                                                 Set<BinaryOption> config) {
     for (BinaryOption option : config) {
       Variable variable = context.getVariable(option);
@@ -42,7 +42,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     }
   }
 
-  private static IntVar addOptionWeighting(ConstraintSystemContext context, Model model,
+  private static IntVar addOptionWeighting(ChocoConstraintSystemContext context, Model model,
                                            Function<BinaryOption, Integer> weightingFunction) {
     BoolVar[] goals = new BoolVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
