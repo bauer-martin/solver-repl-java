@@ -1,6 +1,8 @@
 package choco_solver;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.search.SearchState;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.Variable;
 
@@ -199,6 +201,10 @@ final class ChocoConstraintSystemContext {
     Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
     Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
     model.getCachedConstants().clear();
-    model.getSolver().hardReset();
+    Solver solver = model.getSolver();
+    SearchState searchState = solver.getSearchState();
+    if (searchState != SearchState.NEW) {
+      solver.hardReset();
+    }
   }
 }
