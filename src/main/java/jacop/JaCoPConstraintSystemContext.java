@@ -72,8 +72,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void addVariableConstraints(BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     BooleanVar variable = optionToVar.get(option);
     if (option.isRoot()) {
       store.impose(new XeqC(variable, 1));
@@ -91,8 +89,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
 
   private void processAlternativeOptions(Collection<ConfigurationOption> processedAlternatives,
                                          BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     List<ConfigurationOption> options = option.collectAlternativeOptions();
     if (options.isEmpty() || processedAlternatives.contains(option)) {
       return;
@@ -111,8 +107,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processExcludedOptionsAsCrossTreeConstraints(BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     Collection<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
     for (List<ConfigurationOption> nonAlternativeOption : options) {
       PrimitiveConstraint[] orVars = new PrimitiveConstraint[nonAlternativeOption.size()];
@@ -125,8 +119,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processImpliedOptions(BinaryOption option) {
-    assert store != null;
-    assert optionToVar != null;
     for (List<ConfigurationOption> impliedOptions : option.getImpliedOptions()) {
       PrimitiveConstraint[] orVars = new PrimitiveConstraint[impliedOptions.size()];
       for (int i = 0; i < orVars.length; i++) {
@@ -142,8 +134,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
    * The constraints should be in conjunctive normal form.
    */
   private void processBinaryConstraints() {
-    assert store != null;
-    assert optionToVar != null;
     for (String constraint : vm.getBinaryConstraints()) {
       boolean and = false;
       String[] terms;
@@ -178,7 +168,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   @Nonnull
   @Override
   public Iterator<Entry<ConfigurationOption, BooleanVar>> iterator() {
-    assert optionToVar != null;
     return optionToVar.entrySet().iterator();
   }
 
@@ -188,7 +177,6 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   IntVar[] getVariables() {
-    assert variables != null;
     //noinspection AssignmentOrReturnOfFieldWithMutableType
     return variables;
   }
