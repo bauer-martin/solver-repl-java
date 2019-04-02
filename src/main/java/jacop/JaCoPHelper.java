@@ -1,5 +1,6 @@
 package jacop;
 
+import org.jacop.constraints.XeqC;
 import org.jacop.core.BooleanVar;
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
@@ -18,9 +19,18 @@ import javax.annotation.Nullable;
 
 import spl_conqueror.BinaryOption;
 
-public final class JaCoPSearch {
+final class JaCoPHelper {
 
-  private JaCoPSearch() {
+  private JaCoPHelper() {
+  }
+
+  static void selectFeatures(JaCoPConstraintSystemContext context,
+                             Iterable<BinaryOption> selectedOptions) {
+    Store store = context.getStore();
+    for (BinaryOption option : selectedOptions) {
+      BooleanVar variable = context.getVariable(option);
+      store.impose(new XeqC(variable, 1));
+    }
   }
 
   static boolean performSearch(JaCoPConstraintSystemContext context,

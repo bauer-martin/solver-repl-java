@@ -1,5 +1,7 @@
 package choco_solver;
 
+import static choco_solver.ChocoHelper.selectFeatures;
+
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -32,15 +34,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     this.context = context;
   }
 
-  @SuppressWarnings("TypeMayBeWeakened")
-  private static void constraintSelectedOptions(ChocoConstraintSystemContext context,
-                                                Set<BinaryOption> config) {
-    for (BinaryOption option : config) {
-      Variable variable = context.getVariable(option);
-      variable.asBoolVar().eq(1).post();
-    }
-  }
-
+  @Nonnull
   private static IntVar addOptionWeighting(ChocoConstraintSystemContext context,
                                            Function<BinaryOption, Integer> weightingFunction) {
     Model model = context.getModel();
@@ -66,8 +60,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     context.markCheckpoint();
     Model model = context.getModel();
 
-    // feature selection
-    constraintSelectedOptions(context, config);
+    selectFeatures(context, config);
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.
@@ -94,8 +87,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     context.markCheckpoint();
     Model model = context.getModel();
 
-    // feature selection
-    constraintSelectedOptions(context, config);
+    selectFeatures(context, config);
 
     // Since we are minimizing, unwanted options which are not part of the original configuration
     // get a large weight. This way, it is unlikely (but not impossible) that they are selected.

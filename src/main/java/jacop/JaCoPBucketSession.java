@@ -1,6 +1,7 @@
 package jacop;
 
-import static jacop.JaCoPSearch.performSearch;
+import static jacop.JaCoPHelper.performSearch;
+import static jacop.JaCoPHelper.selectFeatures;
 
 import org.jacop.constraints.And;
 import org.jacop.constraints.Not;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -116,14 +116,11 @@ public final class JaCoPBucketSession implements BucketSession {
 
   @Nullable
   private Set<BinaryOption> getSmallWeightConfig(Iterable<Set<BinaryOption>> featureRanking) {
-    Store store = context.getStore();
     for (Set<BinaryOption> candidates : featureRanking) {
       context.markCheckpoint();
 
       // force features to be selected
-      store.impose(new And(candidates.stream()
-                                     .map(option -> new XeqC(context.getVariable(option), 1))
-                                     .collect(Collectors.toList())));
+      selectFeatures(context, candidates);
 
       // check if satisfiable
       DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);

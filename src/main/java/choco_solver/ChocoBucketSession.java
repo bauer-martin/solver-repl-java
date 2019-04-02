@@ -1,5 +1,7 @@
 package choco_solver;
 
+import static choco_solver.ChocoHelper.selectFeatures;
+
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.variables.BoolVar;
@@ -94,10 +96,7 @@ public final class ChocoBucketSession implements BucketSession {
       context.markCheckpoint();
 
       // force features to be selected
-      BoolVar[] ands = candidates.stream()
-                                 .map(option -> context.getVariable(option).asBoolVar())
-                                 .toArray(BoolVar[]::new);
-      model.and(ands).post();
+      selectFeatures(context, candidates);
 
       // check if satisfiable
       Solution solution = model.getSolver().findSolution();

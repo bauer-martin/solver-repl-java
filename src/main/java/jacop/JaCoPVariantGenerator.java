@@ -1,7 +1,8 @@
 package jacop;
 
-import static jacop.JaCoPSearch.performMinimizingSearch;
-import static jacop.JaCoPSearch.performSearch;
+import static jacop.JaCoPHelper.performMinimizingSearch;
+import static jacop.JaCoPHelper.performSearch;
+import static jacop.JaCoPHelper.selectFeatures;
 
 import org.jacop.constraints.LinearInt;
 import org.jacop.constraints.XeqC;
@@ -36,16 +37,6 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     this.vm = vm;
   }
 
-  @SuppressWarnings("TypeMayBeWeakened")
-  private static void constraintSelectedOptions(JaCoPConstraintSystemContext context,
-                                                Set<BinaryOption> config) {
-    Store store = context.getStore();
-    for (BinaryOption option : config) {
-      BooleanVar variable = context.getVariable(option);
-      store.impose(new XeqC(variable, 1));
-    }
-  }
-
   private static IntVar addOptionWeighting(
       JaCoPConstraintSystemContext context, Function<BinaryOption, Integer> weightingFunction) {
     BooleanVar[] goals = new BooleanVar[context.getVariableCount()];
@@ -69,9 +60,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
                                                Set<BinaryOption> unwantedOptions) {
     JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
 
-    // feature selection
-    constraintSelectedOptions(context, config);
-
+    selectFeatures(context, config);
     IntVar sumVar = addOptionWeighting(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
@@ -87,9 +76,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     Store store = context.getStore();
 
-    // feature selection
-    constraintSelectedOptions(context, config);
-
+    selectFeatures(context, config);
     IntVar sumVar = addOptionWeighting(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
