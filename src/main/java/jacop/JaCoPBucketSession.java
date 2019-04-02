@@ -80,10 +80,8 @@ public final class JaCoPBucketSession implements BucketSession {
   private Set<BinaryOption> generateConfig(int selectedOptionsCount,
                                            Iterable<Set<BinaryOption>> featureRanking,
                                            Iterable<Set<BinaryOption>> excludedConfigs) {
+    context.markCheckpoint();
     Store store = context.getStore();
-    // record current state
-    int baseLevel = store.level;
-    store.setLevel(baseLevel + 1);
 
     store.impose(new XeqC(sumVar, selectedOptionsCount));
 
@@ -111,13 +109,8 @@ public final class JaCoPBucketSession implements BucketSession {
       result = approximateOptimal;
     }
 
-    // reset constraint system
-    if (store.level != baseLevel + 1) {
-      throw new IllegalStateException("investigation needed");
-    }
-    store.removeLevel(store.level);
-    store.setLevel(store.level - 1);
-
+    // cleanup
+    context.resetToLastCheckpoint();
     return result;
   }
 
@@ -125,10 +118,7 @@ public final class JaCoPBucketSession implements BucketSession {
   private Set<BinaryOption> getSmallWeightConfig(Iterable<Set<BinaryOption>> featureRanking) {
     Store store = context.getStore();
     for (Set<BinaryOption> candidates : featureRanking) {
-
-      // record current state
-      int baseLevel = store.level;
-      store.setLevel(baseLevel + 1);
+      context.markCheckpoint();
 
       // force features to be selected
       store.impose(new And(candidates.stream()
@@ -143,12 +133,8 @@ public final class JaCoPBucketSession implements BucketSession {
         solution = solutionListener.getSolutionAsConfig();
       }
 
-      // reset constraint system
-      if (store.level != baseLevel + 1) {
-        throw new IllegalStateException("investigation needed");
-      }
-      store.removeLevel(store.level);
-      store.setLevel(store.level - 1);
+      // cleanup
+      context.resetToLastCheckpoint();
 
       // stop if solution has been found
       if (solution != null) {

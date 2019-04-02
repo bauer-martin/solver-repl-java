@@ -12,7 +12,9 @@ import org.jacop.core.BoundDomain;
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,12 +40,16 @@ final class JaCoPConstraintSystemContext {
   @Nonnull
   private final IntVar[] variables;
 
+  @Nonnull
+  private final Deque<Integer> checkpoints;
+
   JaCoPConstraintSystemContext(VariabilityModel vm) {
     this.vm = vm;
     store = new Store();
     List<BinaryOption> binaryOptions = vm.getBinaryOptions();
     optionToVar = new HashMap<>(binaryOptions.size());
     variables = new IntVar[binaryOptions.size()];
+    checkpoints = new ArrayDeque<>();
     createVariables();
     processBinaryOptions();
     processBinaryConstraints();
@@ -190,6 +196,21 @@ final class JaCoPConstraintSystemContext {
       throw new IllegalArgumentException(option.getName() + " is not used as variable");
     }
     return optionToVar.get(option);
+  }
+
+  void markCheckpoint() {
+    int baseLevel = store.level;
+    store.setLevel(baseLevel + 1);
+    checkpoints.push(baseLevel);
+  }
+
+  void resetToLastCheckpoint() {
+    int baseLevel = checkpoints.pop();
+    if (store.level != baseLevel + 1) {
+      throw new IllegalStateException("investigation needed");
+    }
+    store.removeLevel(store.level);
+    store.setLevel(store.level - 1);
   }
 }
 

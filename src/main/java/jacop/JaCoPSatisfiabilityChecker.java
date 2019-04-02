@@ -30,9 +30,8 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
 
   @Override
   public boolean isValid(Set<BinaryOption> selectedOptions, boolean isPartialConfiguration) {
+    context.markCheckpoint();
     Store store = context.getStore();
-    int baseLevel = store.level;
-    store.setLevel(baseLevel + 1);
 
     // feature selection
     for (Entry<BinaryOption, BooleanVar> entry : context.binaryOptions()) {
@@ -55,12 +54,8 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
                                                               new IndomainRandom<>(0));
     boolean hasFoundSolution = search.labeling(store, select);
 
-    if (store.level == baseLevel + 1) {
-      store.removeLevel(store.level);
-      store.setLevel(store.level - 1);
-      return hasFoundSolution;
-    } else {
-      throw new IllegalStateException("investigation needed");
-    }
+    // cleanup
+    context.resetToLastCheckpoint();
+    return hasFoundSolution;
   }
 }

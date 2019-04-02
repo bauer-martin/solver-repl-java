@@ -5,7 +5,6 @@ import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.Variable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,7 +48,7 @@ public final class ChocoBucketSession implements BucketSession {
   private Set<BinaryOption> generateConfig(int selectedOptionsCount,
                                            Iterable<Set<BinaryOption>> featureRanking,
                                            Iterable<Set<BinaryOption>> excludedConfigs) {
-    // get access to the constraint system
+    context.markCheckpoint();
     Model model = context.getModel();
 
     // there should be exactly selectedOptionsCount features selected
@@ -74,7 +73,7 @@ public final class ChocoBucketSession implements BucketSession {
     }
 
     // if we have a feature ranking, we can use it to approximate the optimal solution
-    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(model, featureRanking);
+    Set<BinaryOption> approximateOptimal = getSmallWeightConfig(featureRanking);
     Set<BinaryOption> result;
     if (approximateOptimal == null) {
       Solution solution = model.getSolver().findSolution();
@@ -84,17 +83,15 @@ public final class ChocoBucketSession implements BucketSession {
     }
 
     // cleanup
-    context.resetModel();
+    context.resetToLastCheckpoint();
     return result;
   }
 
   @Nullable
-  private Set<BinaryOption> getSmallWeightConfig(Model model,
-                                                 Iterable<Set<BinaryOption>> featureRanking) {
+  private Set<BinaryOption> getSmallWeightConfig(Iterable<Set<BinaryOption>> featureRanking) {
+    Model model = context.getModel();
     for (Set<BinaryOption> candidates : featureRanking) {
-      // record current state
-      int nbVars = model.getNbVars();
-      int nbCstrs = model.getNbCstrs();
+      context.markCheckpoint();
 
       // force features to be selected
       BoolVar[] ands = candidates.stream()
@@ -105,11 +102,8 @@ public final class ChocoBucketSession implements BucketSession {
       // check if satisfiable
       Solution solution = model.getSolver().findSolution();
 
-      // soft reset constraint system
-      Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
-      Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
-      model.getCachedConstants().clear();
-      model.getSolver().reset();
+      // cleanup
+      context.resetToLastCheckpoint();
 
       // stop if solution has been found
       if (solution != null) {

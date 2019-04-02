@@ -4,8 +4,10 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.Variable;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +18,7 @@ import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
+import utilities.Tuple;
 
 final class ChocoConstraintSystemContext {
 
@@ -28,16 +31,14 @@ final class ChocoConstraintSystemContext {
   @Nonnull
   private final Map<BinaryOption, Variable> optionToVar;
 
-  private boolean modelIsInUse;
-
-  private int nbVars;
-
-  private int nbCstrs;
+  @Nonnull
+  private final Deque<Tuple<Integer, Integer>> checkpoints;
 
   private ChocoConstraintSystemContext(VariabilityModel vm) {
     this.vm = vm;
     model = new Model();
     optionToVar = new HashMap<>();
+    checkpoints = new ArrayDeque<>();
   }
 
   @Nonnull
@@ -164,22 +165,7 @@ final class ChocoConstraintSystemContext {
 
   @Nonnull
   Model getModel() {
-    if (modelIsInUse) {
-      throw new UnsupportedOperationException("Constraint system can not be used more than once! "
-                                              + "Call resetModel() first!");
-    }
-    nbVars = model.getNbVars();
-    nbCstrs = model.getNbCstrs();
-    modelIsInUse = true;
     return model;
-  }
-
-  void resetModel() {
-    Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
-    Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
-    model.getCachedConstants().clear();
-    model.getSolver().hardReset();
-    modelIsInUse = false;
   }
 
   int getVariableCount() {
@@ -197,5 +183,22 @@ final class ChocoConstraintSystemContext {
   @Nonnull
   VariabilityModel getVariabilityModel() {
     return vm;
+  }
+
+  void markCheckpoint() {
+    int nbCstrs = model.getNbCstrs();
+    int nbVars = model.getNbVars();
+    Tuple<Integer, Integer> checkpoint = new Tuple<>(nbCstrs, nbVars);
+    checkpoints.push(checkpoint);
+  }
+
+  void resetToLastCheckpoint() {
+    Tuple<Integer, Integer> state = checkpoints.pop();
+    Integer nbCstrs = state.getFirst();
+    Integer nbVars = state.getSecond();
+    Arrays.stream(model.getCstrs(), nbCstrs, model.getNbCstrs()).forEach(model::unpost);
+    Arrays.stream(model.getVars(), nbVars, model.getNbVars()).forEach(model::unassociates);
+    model.getCachedConstants().clear();
+    model.getSolver().hardReset();
   }
 }
