@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.BucketSession;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
 import utilities.Tuple;
@@ -52,8 +51,8 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     BooleanVar[] goals = new BooleanVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
     int index = 0;
-    for (Entry<ConfigurationOption, BooleanVar> entry : context) {
-      BinaryOption option = (BinaryOption) entry.getKey();
+    for (Entry<BinaryOption, BooleanVar> entry : context) {
+      BinaryOption option = entry.getKey();
       goals[index] = entry.getValue();
       coefficients[index] = weightingFunction.apply(option);
       index++;

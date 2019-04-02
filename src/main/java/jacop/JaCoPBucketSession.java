@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.BucketSession;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariabilityModel;
 
 public final class JaCoPBucketSession implements BucketSession {
@@ -68,7 +67,7 @@ public final class JaCoPBucketSession implements BucketSession {
     // there should be exactly selectedOptionsCount features selected
     BooleanVar[] allVariables = new BooleanVar[context.getVariableCount()];
     int index = 0;
-    for (Entry<ConfigurationOption, BooleanVar> entry : context) {
+    for (Entry<BinaryOption, BooleanVar> entry : context) {
       allVariables[index] = entry.getValue();
       index++;
     }

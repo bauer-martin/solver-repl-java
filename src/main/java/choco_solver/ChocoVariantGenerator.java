@@ -20,7 +20,6 @@ import javax.annotation.Nullable;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.BucketSession;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariantGenerator;
 import utilities.Tuple;
 
@@ -47,8 +46,8 @@ class ChocoVariantGenerator implements VariantGenerator {
     BoolVar[] goals = new BoolVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
     int index = 0;
-    for (Entry<ConfigurationOption, Variable> entry : context) {
-      BinaryOption option = (BinaryOption) entry.getKey();
+    for (Entry<BinaryOption, Variable> entry : context) {
+      BinaryOption option = entry.getKey();
       goals[index] = entry.getValue().asBoolVar();
       coefficients[index] = weightingFunction.apply(option);
       index++;

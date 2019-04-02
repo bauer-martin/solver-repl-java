@@ -23,10 +23,9 @@ import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariabilityModel;
 
-final class JaCoPConstraintSystemContext implements Iterable<Entry<ConfigurationOption, BooleanVar>> {
+final class JaCoPConstraintSystemContext implements Iterable<Entry<BinaryOption, BooleanVar>> {
 
   @Nonnull
   private final VariabilityModel vm;
@@ -35,7 +34,7 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   private final Store store;
 
   @Nonnull
-  private final Map<ConfigurationOption, BooleanVar> optionToVar;
+  private final Map<BinaryOption, BooleanVar> optionToVar;
 
   @Nonnull
   private final IntVar[] variables;
@@ -62,7 +61,7 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processBinaryOptions() {
-    Collection<ConfigurationOption> processedAlternatives = new HashSet<>();
+    Collection<BinaryOption> processedAlternatives = new HashSet<>();
     for (BinaryOption option : vm.getBinaryOptions()) {
       addVariableConstraints(option);
       processAlternativeOptions(processedAlternatives, option);
@@ -87,9 +86,9 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
     }
   }
 
-  private void processAlternativeOptions(Collection<ConfigurationOption> processedAlternatives,
+  private void processAlternativeOptions(Collection<BinaryOption> processedAlternatives,
                                          BinaryOption option) {
-    List<ConfigurationOption> options = option.collectAlternativeOptions();
+    List<BinaryOption> options = option.collectAlternativeOptions();
     if (options.isEmpty() || processedAlternatives.contains(option)) {
       return;
     }
@@ -97,7 +96,7 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
     BooleanVar[] alternativeGroupVars = new BooleanVar[options.size() + 1];
     alternativeGroupVars[0] = optionToVar.get(option);
     for (int i = 1; i < alternativeGroupVars.length; i++) {
-      ConfigurationOption o = options.get(i - 1);
+      BinaryOption o = options.get(i - 1);
       alternativeGroupVars[i] = optionToVar.get(o);
     }
     IntVar sumVar = new IntVar(store, new BoundDomain(0, alternativeGroupVars.length));
@@ -107,11 +106,11 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processExcludedOptionsAsCrossTreeConstraints(BinaryOption option) {
-    Collection<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
-    for (List<ConfigurationOption> nonAlternativeOption : options) {
+    Collection<List<BinaryOption>> options = option.getNonAlternativeExcludedOptions();
+    for (List<BinaryOption> nonAlternativeOption : options) {
       PrimitiveConstraint[] orVars = new PrimitiveConstraint[nonAlternativeOption.size()];
       for (int i = 0; i < orVars.length; i++) {
-        ConfigurationOption o = nonAlternativeOption.get(i);
+        BinaryOption o = nonAlternativeOption.get(i);
         orVars[i] = new XeqC(optionToVar.get(o), 1);
       }
       store.impose(new Or(new XeqC(optionToVar.get(option), 0), new Not(new Or(orVars))));
@@ -119,10 +118,10 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processImpliedOptions(BinaryOption option) {
-    for (List<ConfigurationOption> impliedOptions : option.getImpliedOptions()) {
+    for (List<BinaryOption> impliedOptions : option.getImpliedOptions()) {
       PrimitiveConstraint[] orVars = new PrimitiveConstraint[impliedOptions.size()];
       for (int i = 0; i < orVars.length; i++) {
-        ConfigurationOption o = impliedOptions.get(i);
+        BinaryOption o = impliedOptions.get(i);
         orVars[i] = new XeqC(optionToVar.get(o), 1);
       }
       store.impose(new Or(new XeqC(optionToVar.get(option), 0), new Or(orVars)));
@@ -167,7 +166,7 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
 
   @Nonnull
   @Override
-  public Iterator<Entry<ConfigurationOption, BooleanVar>> iterator() {
+  public Iterator<Entry<BinaryOption, BooleanVar>> iterator() {
     return optionToVar.entrySet().iterator();
   }
 
@@ -187,7 +186,7 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   @Nonnull
-  BooleanVar getVariable(ConfigurationOption option) {
+  BooleanVar getVariable(BinaryOption option) {
     assert optionToVar != null;
     if (!optionToVar.containsKey(option)) {
       throw new IllegalArgumentException(option.getName() + " is not used as variable");

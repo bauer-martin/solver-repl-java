@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
 
 import spl_conqueror.BinaryOption;
 import spl_conqueror.BucketSession;
-import spl_conqueror.ConfigurationOption;
 
 public final class ChocoBucketSession implements BucketSession {
 
@@ -56,7 +55,7 @@ public final class ChocoBucketSession implements BucketSession {
     // there should be exactly selectedOptionsCount features selected
     BoolVar[] allVariables = new BoolVar[context.getVariableCount()];
     int index = 0;
-    for (Entry<ConfigurationOption, Variable> entry : context) {
+    for (Entry<BinaryOption, Variable> entry : context) {
       allVariables[index] = entry.getValue().asBoolVar();
       index++;
     }

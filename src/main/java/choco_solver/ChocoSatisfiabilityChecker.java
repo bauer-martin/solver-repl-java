@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.SatisfiabilityChecker;
 
 final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
@@ -28,8 +27,8 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
     Model model = context.getModel();
 
     // feature selection
-    for (Entry<ConfigurationOption, Variable> entry : context) {
-      BinaryOption option = (BinaryOption) entry.getKey();
+    for (Entry<BinaryOption, Variable> entry : context) {
+      BinaryOption option = entry.getKey();
       Variable variable = entry.getValue();
 
       if (selectedOptions.contains(option)) {

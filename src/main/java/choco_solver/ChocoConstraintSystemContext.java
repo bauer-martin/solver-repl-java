@@ -16,10 +16,9 @@ import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.VariabilityModel;
 
-final class ChocoConstraintSystemContext implements Iterable<Entry<ConfigurationOption, Variable>> {
+final class ChocoConstraintSystemContext implements Iterable<Entry<BinaryOption, Variable>> {
 
   @Nonnull
   private final VariabilityModel vm;
@@ -28,7 +27,7 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
   private final Model model;
 
   @Nonnull
-  private final Map<ConfigurationOption, Variable> optionToVar;
+  private final Map<BinaryOption, Variable> optionToVar;
 
   private boolean modelIsInUse;
 
@@ -59,7 +58,7 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processBinaryOptions() {
-    Collection<ConfigurationOption> processedAlternatives = new HashSet<>();
+    Collection<BinaryOption> processedAlternatives = new HashSet<>();
     for (BinaryOption option : vm.getBinaryOptions()) {
       addVariableConstraints(option);
       processAlternativeOptions(processedAlternatives, option);
@@ -83,9 +82,9 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
     }
   }
 
-  private void processAlternativeOptions(Collection<ConfigurationOption> processedAlternatives,
+  private void processAlternativeOptions(Collection<BinaryOption> processedAlternatives,
                                          BinaryOption option) {
-    List<ConfigurationOption> options = option.collectAlternativeOptions();
+    List<BinaryOption> options = option.collectAlternativeOptions();
     if (options.isEmpty() || processedAlternatives.contains(option)) {
       return;
     }
@@ -93,7 +92,7 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
     BoolVar[] alternativeGroupVars = new BoolVar[options.size() + 1];
     alternativeGroupVars[0] = optionToVar.get(option).asBoolVar();
     for (int i = 1; i < alternativeGroupVars.length; i++) {
-      ConfigurationOption o = options.get(i - 1);
+      BinaryOption o = options.get(i - 1);
       alternativeGroupVars[i] = optionToVar.get(o).asBoolVar();
     }
     parentVar.imp(model.sum(alternativeGroupVars, "=", 1).reify()).post();
@@ -101,11 +100,11 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processExcludedOptionsAsCrossTreeConstraints(BinaryOption option) {
-    Collection<List<ConfigurationOption>> options = option.getNonAlternativeExcludedOptions();
-    for (List<ConfigurationOption> nonAlternativeOption : options) {
+    Collection<List<BinaryOption>> options = option.getNonAlternativeExcludedOptions();
+    for (List<BinaryOption> nonAlternativeOption : options) {
       BoolVar[] orVars = new BoolVar[nonAlternativeOption.size()];
       for (int i = 0; i < orVars.length; i++) {
-        ConfigurationOption o = nonAlternativeOption.get(i);
+        BinaryOption o = nonAlternativeOption.get(i);
         orVars[i] = optionToVar.get(o).asBoolVar();
       }
       optionToVar.get(option).asBoolVar().imp(model.not(model.or(orVars)).reify()).post();
@@ -113,10 +112,10 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   private void processImpliedOptions(BinaryOption option) {
-    for (List<ConfigurationOption> impliedOptions : option.getImpliedOptions()) {
+    for (List<BinaryOption> impliedOptions : option.getImpliedOptions()) {
       BoolVar[] orVars = new BoolVar[impliedOptions.size()];
       for (int i = 0; i < orVars.length; i++) {
-        ConfigurationOption o = impliedOptions.get(i);
+        BinaryOption o = impliedOptions.get(i);
         orVars[i] = optionToVar.get(o).asBoolVar();
       }
       optionToVar.get(option).asBoolVar().imp(model.or(orVars).reify()).post();
@@ -161,7 +160,7 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
 
   @Nonnull
   @Override
-  public Iterator<Entry<ConfigurationOption, Variable>> iterator() {
+  public Iterator<Entry<BinaryOption, Variable>> iterator() {
     return optionToVar.entrySet().iterator();
   }
 
@@ -190,7 +189,7 @@ final class ChocoConstraintSystemContext implements Iterable<Entry<Configuration
   }
 
   @Nonnull
-  Variable getVariable(ConfigurationOption option) {
+  Variable getVariable(BinaryOption option) {
     if (!optionToVar.containsKey(option)) {
       throw new IllegalArgumentException(option.getName() + " is not used as variable");
     }

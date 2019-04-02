@@ -16,7 +16,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import spl_conqueror.BinaryOption;
-import spl_conqueror.ConfigurationOption;
 import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.VariabilityModel;
 
@@ -36,8 +35,8 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
     store.setLevel(baseLevel + 1);
 
     // feature selection
-    for (Entry<ConfigurationOption, BooleanVar> entry : context) {
-      BinaryOption option = (BinaryOption) entry.getKey();
+    for (Entry<BinaryOption, BooleanVar> entry : context) {
+      BinaryOption option = entry.getKey();
       BooleanVar variable = entry.getValue();
 
       if (selectedOptions.contains(option)) {
