@@ -55,7 +55,7 @@ public final class ChocoBucketSession implements BucketSession {
     // there should be exactly selectedOptionsCount features selected
     BoolVar[] allVariables = new BoolVar[context.getVariableCount()];
     int index = 0;
-    for (Entry<BinaryOption, Variable> entry : context) {
+    for (Entry<BinaryOption, Variable> entry : context.binaryOptions()) {
       allVariables[index] = entry.getValue().asBoolVar();
       index++;
     }

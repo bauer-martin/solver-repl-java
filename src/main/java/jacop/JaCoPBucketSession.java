@@ -67,7 +67,7 @@ public final class JaCoPBucketSession implements BucketSession {
     // there should be exactly selectedOptionsCount features selected
     BooleanVar[] allVariables = new BooleanVar[context.getVariableCount()];
     int index = 0;
-    for (Entry<BinaryOption, BooleanVar> entry : context) {
+    for (Entry<BinaryOption, BooleanVar> entry : context.binaryOptions()) {
       allVariables[index] = entry.getValue();
       index++;
     }

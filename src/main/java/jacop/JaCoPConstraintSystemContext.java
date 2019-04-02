@@ -15,7 +15,6 @@ import org.jacop.core.Store;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,7 +24,7 @@ import javax.annotation.Nonnull;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariabilityModel;
 
-final class JaCoPConstraintSystemContext implements Iterable<Entry<BinaryOption, BooleanVar>> {
+final class JaCoPConstraintSystemContext {
 
   @Nonnull
   private final VariabilityModel vm;
@@ -165,9 +164,8 @@ final class JaCoPConstraintSystemContext implements Iterable<Entry<BinaryOption,
   }
 
   @Nonnull
-  @Override
-  public Iterator<Entry<BinaryOption, BooleanVar>> iterator() {
-    return optionToVar.entrySet().iterator();
+  public Iterable<Entry<BinaryOption, BooleanVar>> binaryOptions() {
+    return optionToVar.entrySet();
   }
 
   @Nonnull

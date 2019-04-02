@@ -46,7 +46,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     BoolVar[] goals = new BoolVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
     int index = 0;
-    for (Entry<BinaryOption, Variable> entry : context) {
+    for (Entry<BinaryOption, Variable> entry : context.binaryOptions()) {
       BinaryOption option = entry.getKey();
       goals[index] = entry.getValue().asBoolVar();
       coefficients[index] = weightingFunction.apply(option);

@@ -51,7 +51,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     BooleanVar[] goals = new BooleanVar[context.getVariableCount()];
     int[] coefficients = new int[context.getVariableCount()];
     int index = 0;
-    for (Entry<BinaryOption, BooleanVar> entry : context) {
+    for (Entry<BinaryOption, BooleanVar> entry : context.binaryOptions()) {
       BinaryOption option = entry.getKey();
       goals[index] = entry.getValue();
       coefficients[index] = weightingFunction.apply(option);

@@ -27,7 +27,7 @@ final class ChocoSatisfiabilityChecker implements SatisfiabilityChecker {
     Model model = context.getModel();
 
     // feature selection
-    for (Entry<BinaryOption, Variable> entry : context) {
+    for (Entry<BinaryOption, Variable> entry : context.binaryOptions()) {
       BinaryOption option = entry.getKey();
       Variable variable = entry.getValue();
 

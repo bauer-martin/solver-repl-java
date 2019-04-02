@@ -35,7 +35,7 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
     store.setLevel(baseLevel + 1);
 
     // feature selection
-    for (Entry<BinaryOption, BooleanVar> entry : context) {
+    for (Entry<BinaryOption, BooleanVar> entry : context.binaryOptions()) {
       BinaryOption option = entry.getKey();
       BooleanVar variable = entry.getValue();
 
