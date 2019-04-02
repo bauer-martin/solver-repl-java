@@ -1,5 +1,6 @@
 package jacop;
 
+import org.jacop.core.BooleanVar;
 import org.jacop.core.IntVar;
 import org.jacop.core.Store;
 import org.jacop.search.DepthFirstSearch;
@@ -9,10 +10,13 @@ import org.jacop.search.Search;
 import org.jacop.search.SelectChoicePoint;
 import org.jacop.search.SolutionListener;
 
+import java.util.Map.Entry;
 import java.util.OptionalInt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import spl_conqueror.BinaryOption;
 
 public final class JaCoPSearch {
 
@@ -41,8 +45,14 @@ public final class JaCoPSearch {
     search.setPrintInfo(false);
     search.setAssignSolution(false);
     Store store = context.getStore();
+    IntVar[] allVariables = new IntVar[context.getVariableCount()];
+    int index = 0;
+    for (Entry<BinaryOption, BooleanVar> entry : context.binaryOptions()) {
+      allVariables[index] = entry.getValue();
+      index++;
+    }
     SelectChoicePoint<IntVar> select = new InputOrderSelect<>(store,
-                                                              context.getVariables(),
+                                                              allVariables,
                                                               new IndomainRandom<>(0));
     if (solutionListener != null) {
       solutionListener.recordSolutions(true);

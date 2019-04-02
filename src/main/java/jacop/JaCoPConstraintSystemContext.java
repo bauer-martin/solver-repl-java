@@ -38,9 +38,6 @@ final class JaCoPConstraintSystemContext {
   private final Map<BinaryOption, BooleanVar> optionToVar;
 
   @Nonnull
-  private final IntVar[] variables;
-
-  @Nonnull
   private final Deque<Integer> checkpoints;
 
   JaCoPConstraintSystemContext(VariabilityModel vm) {
@@ -48,7 +45,6 @@ final class JaCoPConstraintSystemContext {
     store = new Store();
     List<BinaryOption> binaryOptions = vm.getBinaryOptions();
     optionToVar = new HashMap<>(binaryOptions.size());
-    variables = new IntVar[binaryOptions.size()];
     checkpoints = new ArrayDeque<>();
     createVariables();
     processBinaryOptions();
@@ -57,11 +53,9 @@ final class JaCoPConstraintSystemContext {
 
   private void createVariables() {
     List<BinaryOption> binaryOptions = vm.getBinaryOptions();
-    for (int i = 0; i < binaryOptions.size(); i++) {
-      BinaryOption option = binaryOptions.get(i);
+    for (BinaryOption option : binaryOptions) {
       BooleanVar variable = new BooleanVar(store, option.getName());
       optionToVar.put(option, variable);
-      variables[i] = variable;
     }
   }
 
@@ -179,19 +173,12 @@ final class JaCoPConstraintSystemContext {
     return store;
   }
 
-  IntVar[] getVariables() {
-    //noinspection AssignmentOrReturnOfFieldWithMutableType
-    return variables;
-  }
-
   int getVariableCount() {
-    assert variables != null;
-    return variables.length;
+    return optionToVar.size();
   }
 
   @Nonnull
   BooleanVar getVariable(BinaryOption option) {
-    assert optionToVar != null;
     if (!optionToVar.containsKey(option)) {
       throw new IllegalArgumentException(option.getName() + " is not used as variable");
     }

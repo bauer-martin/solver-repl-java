@@ -33,24 +33,28 @@ public final class JaCoPSatisfiabilityChecker implements SatisfiabilityChecker {
     context.markCheckpoint();
     Store store = context.getStore();
 
-    // feature selection
+    // feature selection and variable gathering
+    IntVar[] allVariables = new IntVar[context.getVariableCount()];
+    int index = 0;
     for (Entry<BinaryOption, BooleanVar> entry : context.binaryOptions()) {
       BinaryOption option = entry.getKey();
       BooleanVar variable = entry.getValue();
-
       if (selectedOptions.contains(option)) {
         store.impose(new XeqC(variable, 1));
       } else if (!isPartialConfiguration) {
         store.impose(new XeqC(variable, 0));
       }
+      allVariables[index] = entry.getValue();
+      index++;
     }
 
     // check if configuration is valid
     Search<IntVar> search = new DepthFirstSearch<>();
     search.setPrintInfo(false);
     search.setAssignSolution(false);
+
     SelectChoicePoint<IntVar> select = new InputOrderSelect<>(store,
-                                                              context.getVariables(),
+                                                              allVariables,
                                                               new IndomainRandom<>(0));
     boolean hasFoundSolution = search.labeling(store, select);
 
