@@ -1,9 +1,6 @@
 package commands;
 
-import static utilities.ParsingUtils.encodedBinaryOptionsCollection;
-
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -30,6 +27,6 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
     }
     VariantGenerator vg = context.getVariantGenerator();
     Collection<Set<BinaryOption>> configs = vg.generateUpToNConfigs(count);
-    return encodedBinaryOptionsCollection(configs);
+    return context.getOptionCoding().encodeBinaryOptionsIterable(configs);
   }
 }

@@ -3,6 +3,7 @@ package utilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import option_coding.OptionCoding;
 import spl_conqueror.BucketSession;
 import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFactory;
@@ -10,6 +11,9 @@ import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
 
 public final class GlobalContext {
+
+  @Nullable
+  private OptionCoding optionCoding;
 
   @Nullable
   private VariabilityModel variabilityModel;
@@ -25,6 +29,18 @@ public final class GlobalContext {
 
   @Nullable
   private BucketSession bucketSession;
+
+  @Nonnull
+  public OptionCoding getOptionCoding() {
+    if (optionCoding == null) {
+      throw new IllegalStateException("no coding strategy has been set");
+    }
+    return optionCoding;
+  }
+
+  public void setOptionCoding(OptionCoding optionCoding) {
+    this.optionCoding = optionCoding;
+  }
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {

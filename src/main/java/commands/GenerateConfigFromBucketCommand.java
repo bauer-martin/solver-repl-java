@@ -1,7 +1,6 @@
 package commands;
 
 import static java.util.Comparator.comparing;
-import static utilities.ParsingUtils.encodedBinaryOptions;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,12 +12,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import option_coding.OptionCoding;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.BucketSession;
-import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
-import utilities.ParsingUtils;
 import utilities.ShellCommand;
 
 public final class GenerateConfigFromBucketCommand extends ShellCommand {
@@ -29,12 +27,12 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
 
   @Nonnull
   private static Map<Set<BinaryOption>, Integer> decodeFeatureWeightMap(String str,
-                                                                        VariabilityModel vm) {
+                                                                        OptionCoding coding) {
     String[] entryTokens = str.split(";");
     Map<Set<BinaryOption>, Integer> map = new HashMap<>(entryTokens.length);
     for (String entryToken : entryTokens) {
       String[] tokens = entryToken.split("=");
-      Set<BinaryOption> config = ParsingUtils.decodedBinaryOptions(tokens[0], vm);
+      Set<BinaryOption> config = coding.decodeBinaryOptions(tokens[0]);
       int weight = Integer.parseInt(tokens[1]);
       map.put(config, weight);
     }
@@ -55,9 +53,9 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
       return error("invalid number");
     }
     Map<Set<BinaryOption>, Integer> featureWeight;
-    VariabilityModel vm = context.getVariabilityModel();
+    OptionCoding coding = context.getOptionCoding();
     featureWeight = tokens.length < 2 ? Collections.emptyMap()
-                                      : decodeFeatureWeightMap(tokens[1], vm);
+                                      : decodeFeatureWeightMap(tokens[1], coding);
     BucketSession bucketSession = context.getBucketSession();
     if (bucketSession == null) {
       VariantGenerator vg = context.getVariantGenerator();
@@ -71,6 +69,6 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
                        .map(Entry::getKey)
                        .collect(Collectors.toList());
     Set<BinaryOption> config = bucketSession.generateConfig(selectedOptionsCount, featureRanking);
-    return config == null ? "none" : encodedBinaryOptions(config);
+    return config == null ? "none" : coding.encodeBinaryOptions(config);
   }
 }
