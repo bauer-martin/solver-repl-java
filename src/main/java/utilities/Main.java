@@ -42,7 +42,7 @@ public final class Main {
     startShell(input);
   }
 
-  @SuppressWarnings("UseOfSystemOutOrSystemErr")
+  @SuppressWarnings({ "UseOfSystemOutOrSystemErr", "OverlyCoupledMethod" })
   private static void startShell(BufferedReader input) throws IOException {
     Shell shell = new Shell(input, System.out);
     GlobalContext context = new GlobalContext();

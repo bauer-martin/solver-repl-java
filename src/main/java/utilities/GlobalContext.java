@@ -28,11 +28,10 @@ public final class GlobalContext {
 
   @Nonnull
   public VariabilityModel getVariabilityModel() {
-    if (variabilityModel != null) {
-      return variabilityModel;
-    } else {
+    if (variabilityModel == null) {
       throw new IllegalStateException("no variability model has been set");
     }
+    return variabilityModel;
   }
 
   public void setVariabilityModel(VariabilityModel variabilityModel) {
@@ -47,9 +46,8 @@ public final class GlobalContext {
   private SolverFactory getSolverFactory() {
     if (solverFactory == null) {
       throw new IllegalStateException("no solver factory has been set");
-    } else {
-      return solverFactory;
     }
+    return solverFactory;
   }
 
   public void setSolverFactory(SolverFactory solverFactory) {
