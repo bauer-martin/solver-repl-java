@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import option_coding.OptionCoding;
 import option_coding.OptionNameOptionCoding;
+import option_coding.VariabilityModelIndexOptionCoding;
 import spl_conqueror.VariabilityModel;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
@@ -39,13 +40,16 @@ public final class SelectOptionCodingCommand extends ShellCommand {
   }
 
   private enum CodingStrategyType {
-    OPTION_NAME;
+    OPTION_NAME,
+    VARIABILITY_MODEL_INDEX;
 
     @Nonnull
     String getName() {
       switch (this) {
         case OPTION_NAME:
           return "option-name";
+        case VARIABILITY_MODEL_INDEX:
+          return "variability-model-index";
         default:
           throw new IllegalStateException("missing enum case");
       }
@@ -56,6 +60,8 @@ public final class SelectOptionCodingCommand extends ShellCommand {
       switch (this) {
         case OPTION_NAME:
           return new OptionNameOptionCoding(vm);
+        case VARIABILITY_MODEL_INDEX:
+          return new VariabilityModelIndexOptionCoding(vm);
         default:
           throw new IllegalStateException("missing enum case");
       }
