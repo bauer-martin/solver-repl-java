@@ -31,13 +31,4 @@ public final class OptionNameOptionCoding extends AbstractOptionCoding {
                         .map(BinaryOption::getName)
                         .collect(Collectors.joining(OPTION_SEPARATOR));
   }
-
-  @Nonnull
-  @Override
-  public <E extends Iterable<BinaryOption>> String encodeBinaryOptionsIterable(
-      Iterable<E> configs) {
-    return StreamSupport.stream(configs.spliterator(), false)
-                        .map(this::encodeBinaryOptions)
-                        .collect(Collectors.joining(CONFIG_SEPARATOR));
-  }
 }
