@@ -25,7 +25,7 @@ public final class VariabilityModelIndexOptionCoding extends AbstractOptionCodin
   public VariabilityModelIndexOptionCoding(VariabilityModel vm) {
     super(vm);
     List<BinaryOption> binaryOptions = vm.getBinaryOptions();
-    binaryOptions.sort(Comparator.comparing(BinaryOption::getName));
+    binaryOptions.sort((x, y) -> x.getName().compareToIgnoreCase(y.getName()));
     encodingSubstitutions = new HashMap<>(binaryOptions.size());
     decodingSubstitutions = new HashMap<>(binaryOptions.size());
     for (int i = 0; i < binaryOptions.size(); i++) {
