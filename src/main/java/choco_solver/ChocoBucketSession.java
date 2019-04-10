@@ -1,9 +1,9 @@
 package choco_solver;
 
+import static choco_solver.ChocoHelper.findSolution;
 import static choco_solver.ChocoHelper.selectFeatures;
 
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.Variable;
 
@@ -77,12 +77,7 @@ public final class ChocoBucketSession implements BucketSession {
     // if we have a feature ranking, we can use it to approximate the optimal solution
     Set<BinaryOption> approximateOptimal = getSmallWeightConfig(featureRanking);
     Set<BinaryOption> result;
-    if (approximateOptimal == null) {
-      Solution solution = model.getSolver().findSolution();
-      result = solution == null ? null : SolutionTranslator.toBinaryOptions(solution, context);
-    } else {
-      result = approximateOptimal;
-    }
+    result = approximateOptimal == null ? findSolution(context) : approximateOptimal;
 
     // cleanup
     context.resetToLastCheckpoint();
@@ -91,7 +86,6 @@ public final class ChocoBucketSession implements BucketSession {
 
   @Nullable
   private Set<BinaryOption> getSmallWeightConfig(Iterable<Set<BinaryOption>> featureRanking) {
-    Model model = context.getModel();
     for (Set<BinaryOption> candidates : featureRanking) {
       context.markCheckpoint();
 
@@ -99,14 +93,14 @@ public final class ChocoBucketSession implements BucketSession {
       selectFeatures(context, candidates);
 
       // check if satisfiable
-      Solution solution = model.getSolver().findSolution();
+      Set<BinaryOption> config = findSolution(context);
 
       // cleanup
       context.resetToLastCheckpoint();
 
       // stop if solution has been found
-      if (solution != null) {
-        return SolutionTranslator.toBinaryOptions(solution, context);
+      if (config != null) {
+        return config;
       }
     }
     return null;

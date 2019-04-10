@@ -1,17 +1,16 @@
 package choco_solver;
 
+import static choco_solver.ChocoHelper.findAllOptimalSolutions;
+import static choco_solver.ChocoHelper.findOptimalSolution;
+import static choco_solver.ChocoHelper.findAllSolutions;
 import static choco_solver.ChocoHelper.selectFeatures;
 
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.search.limits.SolutionCounter;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
@@ -58,7 +57,6 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
                                                Set<BinaryOption> unwantedOptions) {
     context.markCheckpoint();
-    Model model = context.getModel();
 
     selectFeatures(context, config);
 
@@ -70,14 +68,11 @@ class ChocoVariantGenerator implements VariantGenerator {
         option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     // find an optimal solution
-    Solver solver = model.getSolver();
-    Solution optimalSolution = solver.findOptimalSolution(sumVar, false);
-    Set<BinaryOption> result = optimalSolution == null ? null :
-                               SolutionTranslator.toBinaryOptions(optimalSolution, context);
+    Set<BinaryOption> optimalConfig = findOptimalSolution(context, sumVar);
 
     // cleanup
     context.resetToLastCheckpoint();
-    return result;
+    return optimalConfig;
   }
 
   @Nonnull
@@ -85,7 +80,6 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Collection<Set<BinaryOption>> findAllMaximizedConfigs(Set<BinaryOption> config,
                                                                Set<BinaryOption> unwantedOptions) {
     context.markCheckpoint();
-    Model model = context.getModel();
 
     selectFeatures(context, config);
 
@@ -98,32 +92,24 @@ class ChocoVariantGenerator implements VariantGenerator {
         option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     // find all optimal solutions
-    Solver solver = model.getSolver();
-    List<Solution> optimalSolutions = solver.findAllOptimalSolutions(sumVar,
-                                                                     false);
-    Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(optimalSolutions,
-                                                                              context);
+    Collection<Set<BinaryOption>> optimalConfigs = findAllOptimalSolutions(context, sumVar);
 
     // cleanup
     context.resetToLastCheckpoint();
-    return result;
+    return optimalConfigs;
   }
 
   @Nonnull
   @Override
   public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
     context.markCheckpoint();
-    Model model = context.getModel();
 
     // find solutions
-    Solver solver = model.getSolver();
-    List<Solution> solutions = n > 0 ? solver.findAllSolutions(new SolutionCounter(model, n))
-                                     : solver.findAllSolutions();
-    Collection<Set<BinaryOption>> result = SolutionTranslator.toBinaryOptions(solutions, context);
+    Collection<Set<BinaryOption>> configs = findAllSolutions(context, n);
 
     // cleanup
     context.resetToLastCheckpoint();
-    return result;
+    return configs;
   }
 
   @Nullable
@@ -131,7 +117,6 @@ class ChocoVariantGenerator implements VariantGenerator {
   public Tuple<Set<BinaryOption>, Set<BinaryOption>> generateConfigWithoutOption(
       Set<BinaryOption> config, BinaryOption optionToRemove) {
     context.markCheckpoint();
-    Model model = context.getModel();
 
     // forbid the selection of this configuration option
     context.getVariable(optionToRemove).asBoolVar().eq(0).post();
@@ -144,14 +129,11 @@ class ChocoVariantGenerator implements VariantGenerator {
                                        option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
-    Solver solver = model.getSolver();
-    Solution optimalSolution = solver.findOptimalSolution(sumVar, false);
+    Set<BinaryOption> optimalConfig = findOptimalSolution(context, sumVar);
     Tuple<Set<BinaryOption>, Set<BinaryOption>> result;
-    if (optimalSolution == null) {
+    if (optimalConfig == null) {
       result = null;
     } else {
-      Set<BinaryOption> optimalConfig = SolutionTranslator.toBinaryOptions(optimalSolution,
-                                                                           context);
       // adding the options that have been removed from the original configuration
       Set<BinaryOption> removedElements
           = config.stream()
@@ -169,17 +151,14 @@ class ChocoVariantGenerator implements VariantGenerator {
   @Override
   public Collection<Set<BinaryOption>> generateAllVariants(Set<BinaryOption> optionsToConsider) {
     context.markCheckpoint();
-    Model model = context.getModel();
 
     // find all solutions
-    Solver solver = model.getSolver();
-    List<Solution> solutions = solver.findAllSolutions();
     Collection<Set<BinaryOption>> allVariants
-        = solutions.stream()
-                   .map(solution -> SolutionTranslator.toBinaryOptions(solution, context))
-                   .peek(solution -> solution.retainAll(optionsToConsider))
-                   .filter(binaryOptions -> !binaryOptions.isEmpty())
-                   .collect(Collectors.toSet());
+        = findAllSolutions(context, -1)
+        .stream()
+        .peek(config -> config.retainAll(optionsToConsider))
+        .filter(binaryOptions -> !binaryOptions.isEmpty())
+        .collect(Collectors.toSet());
 
     // cleanup
     context.resetToLastCheckpoint();
