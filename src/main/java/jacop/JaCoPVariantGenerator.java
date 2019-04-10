@@ -33,6 +33,8 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Nonnull
   private final VariabilityModel vm;
 
+  private int seed = 1;
+
   public JaCoPVariantGenerator(VariabilityModel vm) {
     this.vm = vm;
   }
@@ -54,6 +56,10 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     return sumVar;
   }
 
+  void setSeed(int seed) {
+    this.seed = seed;
+  }
+
   @Nullable
   @Override
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
@@ -65,7 +71,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-    OptionalInt optimalCost = performMinimizingSearch(context, solutionListener, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, seed, solutionListener, sumVar);
     return optimalCost.isPresent() ? solutionListener.getSolutionAsConfig() : null;
   }
 
@@ -80,12 +86,12 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     IntVar sumVar = addOptionWeighting(
         context, option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
-    OptionalInt optimalCost = performMinimizingSearch(context, null, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, seed, null, sumVar);
     assert optimalCost.isPresent();
 
     store.impose(new XeqC(sumVar, optimalCost.getAsInt()));
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, -1);
-    boolean hasFoundSolution = performSearch(context, solutionListener);
+    boolean hasFoundSolution = performSearch(context, seed, solutionListener);
     return hasFoundSolution ? solutionListener.getSolutionsAsConfigs() : Collections.emptyList();
   }
 
@@ -94,7 +100,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   public Collection<Set<BinaryOption>> generateUpToNConfigs(int n) {
     JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, n);
-    boolean hasFoundSolution = performSearch(context, solutionListener);
+    boolean hasFoundSolution = performSearch(context, seed, solutionListener);
     return hasFoundSolution ? solutionListener.getSolutionsAsConfigs() : Collections.emptyList();
   }
 
@@ -116,7 +122,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
 
     // find an optimal solution
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-    OptionalInt optimalCost = performMinimizingSearch(context, null, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, seed, null, sumVar);
     if (optimalCost.isPresent()) {
       Set<BinaryOption> optimalConfig = solutionListener.getSolutionAsConfig();
       // adding the options that have been removed from the original configuration
@@ -136,7 +142,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
     JaCoPConstraintSystemContext context = new JaCoPConstraintSystemContext(vm);
     // find all solutions
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, -1);
-    boolean hasFoundSolution = performSearch(context, solutionListener);
+    boolean hasFoundSolution = performSearch(context, seed, solutionListener);
     if (hasFoundSolution) {
       Collection<Set<BinaryOption>> allVariants = solutionListener.getSolutionsAsConfigs();
       return allVariants.stream()
@@ -151,6 +157,6 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
   @Nonnull
   @Override
   public BucketSession createBucketSession() {
-    return new JaCoPBucketSession(vm);
+    return new JaCoPBucketSession(vm, seed);
   }
 }

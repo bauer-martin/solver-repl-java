@@ -29,6 +29,8 @@ class ChocoVariantGenerator implements VariantGenerator {
   @Nonnull
   private final ChocoConstraintSystemContext context;
 
+  private int seed;
+
   ChocoVariantGenerator(ChocoConstraintSystemContext context) {
     this.context = context;
   }
@@ -52,6 +54,10 @@ class ChocoVariantGenerator implements VariantGenerator {
     return sumVar;
   }
 
+  void setSeed(int seed) {
+    this.seed = seed;
+  }
+
   @Nullable
   @Override
   public Set<BinaryOption> findMinimizedConfig(Set<BinaryOption> config,
@@ -68,7 +74,7 @@ class ChocoVariantGenerator implements VariantGenerator {
         option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : 1);
 
     // find an optimal solution
-    Set<BinaryOption> optimalConfig = findOptimalSolution(context, sumVar);
+    Set<BinaryOption> optimalConfig = findOptimalSolution(context, seed, sumVar);
 
     // cleanup
     context.resetToLastCheckpoint();
@@ -92,7 +98,7 @@ class ChocoVariantGenerator implements VariantGenerator {
         option -> unwantedOptions.contains(option) && !config.contains(option) ? 100 : -1);
 
     // find all optimal solutions
-    Collection<Set<BinaryOption>> optimalConfigs = findAllOptimalSolutions(context, sumVar);
+    Collection<Set<BinaryOption>> optimalConfigs = findAllOptimalSolutions(context, seed, sumVar);
 
     // cleanup
     context.resetToLastCheckpoint();
@@ -105,7 +111,7 @@ class ChocoVariantGenerator implements VariantGenerator {
     context.markCheckpoint();
 
     // find solutions
-    Collection<Set<BinaryOption>> configs = findAllSolutions(context, n);
+    Collection<Set<BinaryOption>> configs = findAllSolutions(context, seed, n);
 
     // cleanup
     context.resetToLastCheckpoint();
@@ -129,7 +135,7 @@ class ChocoVariantGenerator implements VariantGenerator {
                                        option -> config.contains(option) ? -1000 : 1000);
 
     // find an optimal solution
-    Set<BinaryOption> optimalConfig = findOptimalSolution(context, sumVar);
+    Set<BinaryOption> optimalConfig = findOptimalSolution(context, seed, sumVar);
     Tuple<Set<BinaryOption>, Set<BinaryOption>> result;
     if (optimalConfig == null) {
       result = null;
@@ -154,7 +160,7 @@ class ChocoVariantGenerator implements VariantGenerator {
 
     // find all solutions
     Collection<Set<BinaryOption>> allVariants
-        = findAllSolutions(context, -1)
+        = findAllSolutions(context, seed, -1)
         .stream()
         .peek(config -> config.retainAll(optionsToConsider))
         .filter(binaryOptions -> !binaryOptions.isEmpty())
@@ -168,6 +174,6 @@ class ChocoVariantGenerator implements VariantGenerator {
   @Nonnull
   @Override
   public BucketSession createBucketSession() {
-    return new ChocoBucketSession(context);
+    return new ChocoBucketSession(context, seed);
   }
 }

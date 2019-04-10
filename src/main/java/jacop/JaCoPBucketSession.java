@@ -39,12 +39,15 @@ public final class JaCoPBucketSession implements BucketSession {
   @Nonnull
   private final JaCoPConstraintSystemContext context;
 
+  private final int seed;
+
   @Nullable
   private IntVar sumVar;
 
-  public JaCoPBucketSession(VariabilityModel vm) {
+  public JaCoPBucketSession(VariabilityModel vm, int seed) {
     this.vm = vm;
     context = new JaCoPConstraintSystemContext(this.vm);
+    this.seed = seed;
   }
 
   @Nullable
@@ -102,7 +105,7 @@ public final class JaCoPBucketSession implements BucketSession {
     Set<BinaryOption> result;
     if (approximateOptimal == null) {
       DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-      boolean hasFoundSolution = performSearch(context, solutionListener);
+      boolean hasFoundSolution = performSearch(context, seed, solutionListener);
       result = hasFoundSolution ? solutionListener.getSolutionAsConfig()
                                 : null;
     } else {
@@ -124,7 +127,7 @@ public final class JaCoPBucketSession implements BucketSession {
 
       // check if satisfiable
       DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-      boolean hasFoundSolution = performSearch(context, solutionListener);
+      boolean hasFoundSolution = performSearch(context, seed, solutionListener);
       Set<BinaryOption> solution = null;
       if (hasFoundSolution) {
         solution = solutionListener.getSolutionAsConfig();

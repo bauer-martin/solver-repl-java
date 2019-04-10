@@ -6,7 +6,7 @@ import org.jacop.core.IntVar;
 import org.jacop.core.Store;
 import org.jacop.search.DepthFirstSearch;
 import org.jacop.search.IndomainRandom;
-import org.jacop.search.InputOrderSelect;
+import org.jacop.search.RandomSelect;
 import org.jacop.search.Search;
 import org.jacop.search.SelectChoicePoint;
 import org.jacop.search.SolutionListener;
@@ -34,22 +34,25 @@ final class JaCoPHelper {
   }
 
   static boolean performSearch(JaCoPConstraintSystemContext context,
+                               int seed,
                                SolutionListener<IntVar> solutionListener) {
     Search<IntVar> search = new DepthFirstSearch<>();
-    return performSearch(context, search, solutionListener, null);
+    return performSearch(context, search, seed, solutionListener, null);
   }
 
   @Nonnull
   static OptionalInt performMinimizingSearch(JaCoPConstraintSystemContext context,
+                                             int seed,
                                              @Nullable SolutionListener<IntVar> solutionListener,
                                              IntVar costVar) {
     Search<IntVar> search = new DepthFirstSearch<>();
-    boolean hasFoundSolution = performSearch(context, search, solutionListener, costVar);
+    boolean hasFoundSolution = performSearch(context, search, seed, solutionListener, costVar);
     return hasFoundSolution ? OptionalInt.of(search.getCostValue()) : OptionalInt.empty();
   }
 
   private static boolean performSearch(JaCoPConstraintSystemContext context,
                                        Search<IntVar> search,
+                                       int seed,
                                        @Nullable SolutionListener<IntVar> solutionListener,
                                        @Nullable IntVar costVar) {
     search.setPrintInfo(false);
@@ -61,9 +64,7 @@ final class JaCoPHelper {
       allVariables[index] = entry.getValue();
       index++;
     }
-    SelectChoicePoint<IntVar> select = new InputOrderSelect<>(store,
-                                                              allVariables,
-                                                              new IndomainRandom<>(0));
+    SelectChoicePoint<IntVar> select = new RandomSelect<>(allVariables, new IndomainRandom<>(seed));
     if (solutionListener != null) {
       solutionListener.recordSolutions(true);
       search.setSolutionListener(solutionListener);

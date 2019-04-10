@@ -9,6 +9,7 @@ import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFacade;
 import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
+import utilities.SolverParameterKeys;
 
 public final class ChocoSolverFacade implements SolverFacade {
 
@@ -20,6 +21,8 @@ public final class ChocoSolverFacade implements SolverFacade {
 
   @Nullable
   private ChocoVariantGenerator variantGenerator;
+
+  private int seed = 1;
 
   public ChocoSolverFacade(VariabilityModel vm) {
     context = ChocoConstraintSystemContext.from(vm);
@@ -39,11 +42,23 @@ public final class ChocoSolverFacade implements SolverFacade {
   public VariantGenerator getVariantGenerator() {
     if (variantGenerator == null) {
       variantGenerator = new ChocoVariantGenerator(context);
+      applyParameters();
     }
     return variantGenerator;
   }
 
   @Override
   public void setParameters(Map<String, String> parameters) {
+    if (parameters.containsKey(SolverParameterKeys.RANDOM_SEED)) {
+      seed = Integer.parseInt(parameters.get(SolverParameterKeys.RANDOM_SEED));
+    }
+    applyParameters();
+  }
+
+  private void applyParameters() {
+    if (variantGenerator == null) {
+      return;
+    }
+    variantGenerator.setSeed(seed);
   }
 }

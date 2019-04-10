@@ -29,8 +29,11 @@ public final class ChocoBucketSession implements BucketSession {
   @Nonnull
   private final ChocoConstraintSystemContext context;
 
-  ChocoBucketSession(ChocoConstraintSystemContext context) {
+  private final int seed;
+
+  ChocoBucketSession(ChocoConstraintSystemContext context, int seed) {
     this.context = context;
+    this.seed = seed;
   }
 
   @Nullable
@@ -77,7 +80,7 @@ public final class ChocoBucketSession implements BucketSession {
     // if we have a feature ranking, we can use it to approximate the optimal solution
     Set<BinaryOption> approximateOptimal = getSmallWeightConfig(featureRanking);
     Set<BinaryOption> result;
-    result = approximateOptimal == null ? findSolution(context) : approximateOptimal;
+    result = approximateOptimal == null ? findSolution(context, seed) : approximateOptimal;
 
     // cleanup
     context.resetToLastCheckpoint();
@@ -93,7 +96,7 @@ public final class ChocoBucketSession implements BucketSession {
       selectFeatures(context, candidates);
 
       // check if satisfiable
-      Set<BinaryOption> config = findSolution(context);
+      Set<BinaryOption> config = findSolution(context, seed);
 
       // cleanup
       context.resetToLastCheckpoint();

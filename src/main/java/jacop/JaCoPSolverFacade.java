@@ -9,6 +9,7 @@ import spl_conqueror.SatisfiabilityChecker;
 import spl_conqueror.SolverFacade;
 import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
+import utilities.SolverParameterKeys;
 
 public final class JaCoPSolverFacade implements SolverFacade {
 
@@ -20,6 +21,8 @@ public final class JaCoPSolverFacade implements SolverFacade {
 
   @Nullable
   private JaCoPVariantGenerator variantGenerator;
+
+  private int seed = 1;
 
   public JaCoPSolverFacade(VariabilityModel variabilityModel) {
     this.variabilityModel = variabilityModel;
@@ -39,11 +42,23 @@ public final class JaCoPSolverFacade implements SolverFacade {
   public VariantGenerator getVariantGenerator() {
     if (variantGenerator == null) {
       variantGenerator = new JaCoPVariantGenerator(variabilityModel);
+      applyParameters();
     }
     return variantGenerator;
   }
 
   @Override
   public void setParameters(Map<String, String> parameters) {
+    if (parameters.containsKey(SolverParameterKeys.RANDOM_SEED)) {
+      seed = Integer.parseInt(parameters.get(SolverParameterKeys.RANDOM_SEED));
+    }
+    applyParameters();
+  }
+
+  private void applyParameters() {
+    if (variantGenerator == null) {
+      return;
+    }
+    variantGenerator.setSeed(seed);
   }
 }
