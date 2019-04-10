@@ -27,7 +27,7 @@ public final class GenerateAllVariantsCommand extends ShellCommand {
     OptionCoding coding = context.getOptionCoding();
     Set<BinaryOption> optionsToConsider = coding.decodeBinaryOptions(tokens[0]);
 
-    VariantGenerator vg = context.getVariantGenerator();
+    VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Collection<Set<BinaryOption>> allVariants = vg.generateAllVariants(optionsToConsider);
     return coding.encodeBinaryOptionsIterable(allVariants);
   }

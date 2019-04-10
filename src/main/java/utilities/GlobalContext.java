@@ -5,10 +5,8 @@ import javax.annotation.Nullable;
 
 import option_coding.OptionCoding;
 import spl_conqueror.BucketSession;
-import spl_conqueror.SatisfiabilityChecker;
-import spl_conqueror.SolverFactory;
+import spl_conqueror.SolverFacade;
 import spl_conqueror.VariabilityModel;
-import spl_conqueror.VariantGenerator;
 
 public final class GlobalContext {
 
@@ -19,13 +17,7 @@ public final class GlobalContext {
   private VariabilityModel variabilityModel;
 
   @Nullable
-  private SolverFactory solverFactory;
-
-  @Nullable
-  private SatisfiabilityChecker satisfiabilityChecker;
-
-  @Nullable
-  private VariantGenerator variantGenerator;
+  private SolverFacade solverFacade;
 
   @Nullable
   private BucketSession bucketSession;
@@ -59,35 +51,18 @@ public final class GlobalContext {
   }
 
   @Nonnull
-  private SolverFactory getSolverFactory() {
-    if (solverFactory == null) {
-      throw new IllegalStateException("no solver factory has been set");
+  public SolverFacade getSolverFacade() {
+    if (solverFacade == null) {
+      throw new IllegalStateException("no solver facade has been set");
     }
-    return solverFactory;
+    return solverFacade;
   }
 
-  public void setSolverFactory(SolverFactory solverFactory) {
-    if (this.solverFactory == null
-        || !this.solverFactory.getClass().equals(solverFactory.getClass())) {
-      this.solverFactory = solverFactory;
-      satisfiabilityChecker = null;
-      variantGenerator = null;
+  public void setSolverFacade(SolverFacade solverFacade) {
+    if (this.solverFacade == null
+        || !this.solverFacade.getClass().equals(solverFacade.getClass())) {
+      this.solverFacade = solverFacade;
     }
-  }
-
-  @Nonnull
-  public SatisfiabilityChecker getSatisfiabilityChecker() {
-    if (satisfiabilityChecker == null) {
-      satisfiabilityChecker = getSolverFactory().createSatisfiabilityChecker();
-    }
-    return satisfiabilityChecker;
-  }
-
-  public VariantGenerator getVariantGenerator() {
-    if (variantGenerator == null) {
-      variantGenerator = getSolverFactory().createVariantGenerator();
-    }
-    return variantGenerator;
   }
 
   @Nullable

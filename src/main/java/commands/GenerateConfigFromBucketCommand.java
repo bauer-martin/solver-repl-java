@@ -58,7 +58,7 @@ public final class GenerateConfigFromBucketCommand extends ShellCommand {
                                       : decodeFeatureWeightMap(tokens[1], coding);
     BucketSession bucketSession = context.getBucketSession();
     if (bucketSession == null) {
-      VariantGenerator vg = context.getVariantGenerator();
+      VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
       bucketSession = vg.createBucketSession();
       context.setBucketSession(bucketSession);
     }

@@ -30,7 +30,7 @@ public final class FindMinimizedConfigCommand extends ShellCommand {
     Set<BinaryOption> unwantedOptions = tokens.length < 2 ? Collections.emptySet()
                                                           : coding.decodeBinaryOptions(tokens[1]);
 
-    VariantGenerator vg = context.getVariantGenerator();
+    VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Set<BinaryOption> optimalConfig = vg.findMinimizedConfig(config, unwantedOptions);
     return optimalConfig == null ? "none" : coding.encodeBinaryOptions(optimalConfig);
   }

@@ -25,7 +25,7 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
     } catch (NumberFormatException e) {
       return error("invalid number");
     }
-    VariantGenerator vg = context.getVariantGenerator();
+    VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Collection<Set<BinaryOption>> configs = vg.generateUpToNConfigs(count);
     return context.getOptionCoding().encodeBinaryOptionsIterable(configs);
   }

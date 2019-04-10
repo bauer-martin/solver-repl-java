@@ -37,7 +37,7 @@ public final class CheckSatisfiabilityCommand extends ShellCommand {
       return error("no configuration specified");
     }
     Set<BinaryOption> config = context.getOptionCoding().decodeBinaryOptions(tokens[1]);
-    SatisfiabilityChecker satChecker = context.getSatisfiabilityChecker();
+    SatisfiabilityChecker satChecker = context.getSolverFacade().getSatisfiabilityChecker();
     boolean valid = satChecker.isValid(config, isPartialConfiguration);
     return String.valueOf(valid);
   }

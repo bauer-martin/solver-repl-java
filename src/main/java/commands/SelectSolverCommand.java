@@ -5,8 +5,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import choco_solver.ChocoSolverFactory;
-import jacop.JaCoPSolverFactory;
+import choco_solver.ChocoSolverFacade;
+import jacop.JaCoPSolverFacade;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
@@ -33,10 +33,10 @@ public final class SelectSolverCommand extends ShellCommand {
     }
     switch (SOLVER_TYPES_BY_NAME.get(argsString)) {
       case CHOCO:
-        context.setSolverFactory(new ChocoSolverFactory(context.getVariabilityModel()));
+        context.setSolverFacade(new ChocoSolverFacade(context.getVariabilityModel()));
         break;
       case JACOP:
-        context.setSolverFactory(new JaCoPSolverFactory(context.getVariabilityModel()));
+        context.setSolverFacade(new JaCoPSolverFacade(context.getVariabilityModel()));
         break;
     }
     return DEFAULT_SUCCESS_RESPONSE;

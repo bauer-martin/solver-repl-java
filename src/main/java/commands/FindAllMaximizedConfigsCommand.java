@@ -29,7 +29,7 @@ public final class FindAllMaximizedConfigsCommand extends ShellCommand {
     Set<BinaryOption> unwantedOptions = tokens.length < 2 ? Collections.emptySet()
                                                           : coding.decodeBinaryOptions(tokens[1]);
 
-    VariantGenerator vg = context.getVariantGenerator();
+    VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Collection<Set<BinaryOption>> optimalConfigs = vg.findAllMaximizedConfigs(config,
                                                                               unwantedOptions);
     return coding.encodeBinaryOptionsIterable(optimalConfigs);
