@@ -20,6 +20,7 @@ import commands.GenerateUpToNConfigsCommand;
 import commands.LoadVMCommand;
 import commands.SelectOptionCodingCommand;
 import commands.SelectSolverCommand;
+import commands.SetSolverParametersCommand;
 
 public final class Main {
 
@@ -49,6 +50,7 @@ public final class Main {
     GlobalContext context = new GlobalContext();
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
     shell.registerCommand(new SelectSolverCommand(context), "select-solver");
+    shell.registerCommand(new SetSolverParametersCommand(context), "set-solver-parameters");
     shell.registerCommand(new SelectOptionCodingCommand(context), "select-option-coding");
     shell.registerCommand(new CheckSatisfiabilityCommand(context), "check-sat");
     shell.registerCommand(new FindMinimizedConfigCommand(context), "find-minimized-config");

@@ -1,5 +1,7 @@
 package choco_solver;
 
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -39,5 +41,9 @@ public final class ChocoSolverFacade implements SolverFacade {
       variantGenerator = new ChocoVariantGenerator(context);
     }
     return variantGenerator;
+  }
+
+  @Override
+  public void setParameters(Map<String, String> parameters) {
   }
 }

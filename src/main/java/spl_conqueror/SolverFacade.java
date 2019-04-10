@@ -1,5 +1,7 @@
 package spl_conqueror;
 
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
 public interface SolverFacade {
@@ -9,4 +11,6 @@ public interface SolverFacade {
 
   @Nonnull
   VariantGenerator getVariantGenerator();
+
+  void setParameters(Map<String, String> parameters);
 }
