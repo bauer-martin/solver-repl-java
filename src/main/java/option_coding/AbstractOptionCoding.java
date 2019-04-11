@@ -1,5 +1,7 @@
 package option_coding;
 
+import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -21,6 +23,14 @@ public abstract class AbstractOptionCoding implements OptionCoding {
 
   protected AbstractOptionCoding(VariabilityModel vm) {
     this.vm = vm;
+  }
+
+  @Nonnull
+  @Override
+  public Set<BinaryOption> decodeBinaryOptions(String str) {
+    return Arrays.stream(str.split(OPTION_SEPARATOR))
+                 .map(this::decodeBinaryOption)
+                 .collect(Collectors.toSet());
   }
 
   @Nonnull

@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 
 import option_coding.OptionCoding;
 import spl_conqueror.BinaryOption;
-import spl_conqueror.VariabilityModel;
 import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
@@ -25,13 +24,12 @@ public final class GenerateConfigWithoutOptionCommand extends ShellCommand {
     if (tokens.length < 1 || tokens[0].length() < 1) {
       return error("no configuration specified");
     }
-    VariabilityModel vm = context.getVariabilityModel();
     OptionCoding coding = context.getOptionCoding();
     Set<BinaryOption> config = coding.decodeBinaryOptions(tokens[0]);
     if (tokens.length < 2) {
       return error("no option specified");
     }
-    BinaryOption optionToRemove = vm.getBinaryOption(tokens[1]);
+    BinaryOption optionToRemove = coding.decodeBinaryOption(tokens[1]);
 
     VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Tuple<Set<BinaryOption>, Set<BinaryOption>> result

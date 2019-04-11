@@ -9,6 +9,9 @@ import spl_conqueror.BinaryOption;
 public interface OptionCoding {
 
   @Nonnull
+  BinaryOption decodeBinaryOption(String str);
+
+  @Nonnull
   Set<BinaryOption> decodeBinaryOptions(String str);
 
   @Nonnull

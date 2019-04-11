@@ -1,11 +1,8 @@
 package option_coding;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -38,11 +35,8 @@ public final class VariabilityModelIndexOptionCoding extends AbstractOptionCodin
 
   @Nonnull
   @Override
-  public Set<BinaryOption> decodeBinaryOptions(String str) {
-    return Arrays.stream(str.split(OPTION_SEPARATOR))
-                 .map(decodingSubstitutions::get)
-                 .map(vm::getBinaryOption)
-                 .collect(Collectors.toSet());
+  public BinaryOption decodeBinaryOption(String str) {
+    return vm.getBinaryOption(decodingSubstitutions.get(str));
   }
 
   @Nonnull
