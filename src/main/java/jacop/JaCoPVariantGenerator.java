@@ -122,7 +122,7 @@ public final class JaCoPVariantGenerator implements VariantGenerator {
 
     // find an optimal solution
     DefaultSolutionListener solutionListener = new DefaultSolutionListener(vm, 1);
-    OptionalInt optimalCost = performMinimizingSearch(context, seed, null, sumVar);
+    OptionalInt optimalCost = performMinimizingSearch(context, seed, solutionListener, sumVar);
     if (optimalCost.isPresent()) {
       Set<BinaryOption> optimalConfig = solutionListener.getSolutionAsConfig();
       // adding the options that have been removed from the original configuration
