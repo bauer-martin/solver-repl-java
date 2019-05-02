@@ -6,7 +6,6 @@ import org.jacop.core.IntVar;
 import org.jacop.core.Store;
 import org.jacop.search.DepthFirstSearch;
 import org.jacop.search.IndomainRandom;
-import org.jacop.search.RandomSelect;
 import org.jacop.search.Search;
 import org.jacop.search.SelectChoicePoint;
 import org.jacop.search.SolutionListener;
@@ -64,7 +63,9 @@ final class JaCoPHelper {
       allVariables[index] = entry.getValue();
       index++;
     }
-    SelectChoicePoint<IntVar> select = new RandomSelect<>(allVariables, new IndomainRandom<>(seed));
+    SelectChoicePoint<IntVar> select = new RandomSelectFixed<>(allVariables,
+                                                               new IndomainRandom<>(seed),
+                                                               seed);
     if (solutionListener != null) {
       solutionListener.recordSolutions(true);
       search.setSolutionListener(solutionListener);
