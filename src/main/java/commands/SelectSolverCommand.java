@@ -2,60 +2,38 @@ package commands;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
-import choco_solver.ChocoSolverFacade;
-import jacop.JaCoPSolverFacade;
+import spl_conqueror.SolverFacade;
+import spl_conqueror.VariabilityModel;
 import utilities.GlobalContext;
 import utilities.ShellCommand;
 
 public final class SelectSolverCommand extends ShellCommand {
 
-  private static final Map<String, SolverType> SOLVER_TYPES_BY_NAME;
-
-  static {
-    SOLVER_TYPES_BY_NAME = new HashMap<>();
-    for (SolverType solverType : SolverType.values()) {
-      SOLVER_TYPES_BY_NAME.put(solverType.getName(), solverType);
-    }
-  }
+  private final Map<String, Function<VariabilityModel, SolverFacade>> solverConstructors;
 
   public SelectSolverCommand(GlobalContext context) {
     super(context);
+    solverConstructors = new HashMap<>();
+  }
+
+  public void registerSolver(String solverName,
+                             Function<VariabilityModel, SolverFacade> solverConstructor) {
+    solverConstructors.put(solverName, solverConstructor);
   }
 
   @Nonnull
   @Override
   public String execute(String argsString) {
-    if (!SOLVER_TYPES_BY_NAME.containsKey(argsString)) {
+    if (!solverConstructors.containsKey(argsString)) {
       return error("unknown solver: " + argsString);
     }
-    switch (SOLVER_TYPES_BY_NAME.get(argsString)) {
-      case CHOCO:
-        context.setSolverFacade(new ChocoSolverFacade(context.getVariabilityModel()));
-        break;
-      case JACOP:
-        context.setSolverFacade(new JaCoPSolverFacade(context.getVariabilityModel()));
-        break;
-    }
+    Function<VariabilityModel, SolverFacade> solverConstructor = solverConstructors.get(argsString);
+    SolverFacade facade = solverConstructor.apply(context.getVariabilityModel());
+    context.setSolverFacade(facade);
     return DEFAULT_SUCCESS_RESPONSE;
-  }
-
-  private enum SolverType {
-    CHOCO,
-    JACOP;
-
-    @Nonnull
-    String getName() {
-      switch (this) {
-        case CHOCO:
-          return "choco";
-        case JACOP:
-          return "jacop";
-        default:
-          throw new IllegalStateException("missing enum case");
-      }
-    }
   }
 }

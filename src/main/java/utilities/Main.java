@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.stream.Stream;
 
+import choco_solver.ChocoSolverFacade;
 import commands.CheckSatisfiabilityCommand;
 import commands.ClearBucketCacheCommand;
 import commands.FindAllMaximizedConfigsCommand;
@@ -21,6 +22,7 @@ import commands.LoadVMCommand;
 import commands.SelectOptionCodingCommand;
 import commands.SelectSolverCommand;
 import commands.SetSolverParametersCommand;
+import jacop.JaCoPSolverFacade;
 
 public final class Main {
 
@@ -49,7 +51,10 @@ public final class Main {
     Shell shell = new Shell(input, System.out);
     GlobalContext context = new GlobalContext();
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
-    shell.registerCommand(new SelectSolverCommand(context), "select-solver");
+    SelectSolverCommand selectSolverCommand = new SelectSolverCommand(context);
+    selectSolverCommand.registerSolver("choco", ChocoSolverFacade::new);
+    selectSolverCommand.registerSolver("jacop", JaCoPSolverFacade::new);
+    shell.registerCommand(selectSolverCommand, "select-solver");
     shell.registerCommand(new SetSolverParametersCommand(context), "set-solver-parameters");
     shell.registerCommand(new SelectOptionCodingCommand(context), "select-option-coding");
     shell.registerCommand(new CheckSatisfiabilityCommand(context), "check-sat");
