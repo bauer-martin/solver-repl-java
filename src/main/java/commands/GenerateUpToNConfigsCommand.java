@@ -23,7 +23,7 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
     try {
       count = Integer.parseInt(argsString);
     } catch (NumberFormatException e) {
-      return error("invalid number");
+      return error("invalid number '" + argsString + '\'');
     }
     VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Collection<Set<BinaryOption>> configs = vg.generateUpToNConfigs(count);
