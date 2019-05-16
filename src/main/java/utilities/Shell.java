@@ -18,14 +18,18 @@ public final class Shell {
   private final PrintStream out;
 
   @Nonnull
+  private final PrintStream err;
+
+  @Nonnull
   private final BufferedReader in;
 
   @Nonnull
   private final Map<String, ShellCommand> commands = new HashMap<>();
 
-  public Shell(BufferedReader in, PrintStream out) {
+  public Shell(BufferedReader in, PrintStream out, PrintStream err) {
     this.in = in;
     this.out = out;
+    this.err = err;
   }
 
   public void registerCommand(ShellCommand command, String commandString) {
@@ -49,7 +53,8 @@ public final class Shell {
       } else if (commandString.equals("exit")) {
         shouldProcessInput = false;
       } else {
-        throw new IllegalStateException("unknown command: " + commandString);
+        err.printf("terminating due to unknown command '%s'%n", commandString);
+        shouldProcessInput = false;
       }
     } while (shouldProcessInput);
   }

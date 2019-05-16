@@ -48,7 +48,7 @@ public final class Main {
 
   @SuppressWarnings({ "UseOfSystemOutOrSystemErr", "OverlyCoupledMethod" })
   private static void startShell(BufferedReader input) throws IOException {
-    Shell shell = new Shell(input, System.out);
+    Shell shell = new Shell(input, System.out, System.err);
     GlobalContext context = new GlobalContext();
     shell.registerCommand(new LoadVMCommand(context), "load-vm");
     SelectSolverCommand selectSolverCommand = new SelectSolverCommand(context);
