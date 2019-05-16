@@ -49,7 +49,12 @@ public final class Shell {
       if (commands.containsKey(commandString)) {
         ShellCommand command = commands.get(commandString);
         String response = command.execute(argsString);
-        out.println(response);
+        if (response.startsWith(ShellCommand.ERROR_PREFIX)) {
+          err.println(response.substring(ShellCommand.ERROR_PREFIX.length()));
+          shouldProcessInput = false;
+        } else {
+          out.println(response);
+        }
       } else if (commandString.equals("exit")) {
         shouldProcessInput = false;
       } else {
