@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import option_coding.OptionCoding;
 import spl_conqueror.BinaryOption;
 import spl_conqueror.VariantGenerator;
 import utilities.GlobalContext;
@@ -27,6 +28,7 @@ public final class GenerateUpToNConfigsCommand extends ShellCommand {
     }
     VariantGenerator vg = context.getSolverFacade().getVariantGenerator();
     Collection<Set<BinaryOption>> configs = vg.generateUpToNConfigs(count);
-    return context.getOptionCoding().encodeBinaryOptionsIterable(configs);
+    OptionCoding optionCoding = context.getOptionCoding();
+    return configs.isEmpty() ? "none" : optionCoding.encodeBinaryOptionsIterable(configs);
   }
 }
