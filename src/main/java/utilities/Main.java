@@ -1,13 +1,9 @@
 package utilities;
 
-import static java.util.stream.Collectors.joining;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.stream.Stream;
 
 import choco_solver.ChocoSolverFacade;
 import commands.CheckSatisfiabilityCommand;
@@ -30,19 +26,8 @@ public final class Main {
   }
 
   public static void main(String... args) throws IOException {
-    runShellUsingStandardInput();
-  }
-
-  @SuppressWarnings("unused")
-  private static void runShellUsingStandardInput() throws IOException {
     BufferedReader input = new BufferedReader(
         new InputStreamReader(System.in, Charset.forName("UTF-8")));
-    startShell(input);
-  }
-
-  private static void runShell(String... args) throws IOException {
-    String inputCommands = Stream.of(args).collect(joining(System.lineSeparator()));
-    BufferedReader input = new BufferedReader(new StringReader(inputCommands));
     startShell(input);
   }
 
